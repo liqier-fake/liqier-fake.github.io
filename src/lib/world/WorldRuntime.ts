@@ -18,6 +18,7 @@ export class WorldRuntime {
   private frameId = 0;
   private visible = true;
   private readonly startedAt = performance.now();
+  private previousTime = performance.now();
 
   static mount(canvas: HTMLCanvasElement, options: WorldRuntimeOptions): WorldRuntime {
     return new WorldRuntime(canvas, options);
@@ -84,8 +85,11 @@ export class WorldRuntime {
       return;
     }
     const elapsed = (performance.now() - this.startedAt) / 1000;
+    const now = performance.now();
+    const delta = (now - this.previousTime) / 1000;
+    this.previousTime = now;
     const frame = sampleWorldFrame(this.progress, this.options.reducedMotion);
-    this.world.update(frame, elapsed);
+    this.world.update(frame, elapsed, delta);
     this.renderer.render(this.world.scene, this.world.camera);
     this.frameId = requestAnimationFrame(this.renderLoop);
   };

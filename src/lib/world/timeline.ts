@@ -5,7 +5,8 @@ export const PHASE_BOUNDARIES = {
 } as const;
 
 export type WorldPhase = 'arrival' | 'gate' | 'hub' | 'approach';
-export type DragonMode = 'lead' | 'circle' | 'rest' | 'indicate' | 'return' | 'idle';
+import { dragonModeForPhase, type DragonMode } from './dragon';
+export type { DragonMode } from './dragon';
 
 export interface WorldFrame {
   phase: WorldPhase;
@@ -21,13 +22,6 @@ const reducedViewpoints: Record<WorldPhase, number> = {
   gate: 0.36,
   hub: 0.58,
   approach: 0.86,
-};
-
-const dragonModes: Record<WorldPhase, DragonMode> = {
-  arrival: 'lead',
-  gate: 'circle',
-  hub: 'idle',
-  approach: 'indicate',
 };
 
 const entrances = [
@@ -69,7 +63,7 @@ export function sampleWorldFrame(progress: number, reducedMotion: boolean): Worl
     cameraT: reducedMotion ? reducedViewpoints[phase] : smoothstep(normalized),
     fogDensity: 0.045 - normalized * 0.027,
     worldLight: 0.48 + normalized * 0.52,
-    dragonMode: dragonModes[phase],
+    dragonMode: dragonModeForPhase(phase),
     focusedEntranceId: entranceAt(normalized),
   };
 }

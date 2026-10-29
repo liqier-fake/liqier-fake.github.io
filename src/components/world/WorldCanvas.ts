@@ -1,10 +1,12 @@
 import { WorldRuntime } from '../../lib/world/WorldRuntime';
+import { sampleWorldFrame } from '../../lib/world/timeline';
 
 export function mountWorld(root: HTMLElement): () => void {
   const canvas = root.querySelector<HTMLCanvasElement>('#world-canvas');
   const poster = root.querySelector<HTMLElement>('[data-world-poster]');
   const fallback = root.querySelector<HTMLElement>('[data-fallback-destinations]');
-  if (!canvas || !poster || !fallback) return () => undefined;
+  const companion = root.querySelector<HTMLElement>('[data-dragon-companion]');
+  if (!canvas || !poster || !fallback || !companion) return () => undefined;
 
   const showFallback = (state: 'fallback' | 'lost'): void => {
     root.dataset.worldState = state;
@@ -27,7 +29,9 @@ export function mountWorld(root: HTMLElement): () => void {
 
   const syncProgress = (): void => {
     const scrollRange = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-    runtime?.setProgress(window.scrollY / scrollRange);
+    const progress = window.scrollY / scrollRange;
+    runtime?.setProgress(progress);
+    companion.dataset.dragonMode = sampleWorldFrame(progress, false).dragonMode;
   };
   syncProgress();
   window.addEventListener('scroll', syncProgress, { passive: true });

@@ -1,11 +1,12 @@
 import * as THREE from 'three';
 import type { QualityProfile } from './quality';
 import type { WorldFrame } from './timeline';
+import { DragonController } from './dragon';
 
 export interface WorldScene {
   scene: THREE.Scene;
   camera: THREE.PerspectiveCamera;
-  update(frame: WorldFrame, elapsed: number): void;
+  update(frame: WorldFrame, elapsed: number, delta: number): void;
   dispose(): void;
 }
 
@@ -154,11 +155,12 @@ export function createWorldScene(profile: QualityProfile): WorldScene {
   addLanternPath(scene);
   addCity(scene);
   const particles = addParticles(scene, profile.particleCount);
+  const dragon = new DragonController(scene, profile);
 
   return {
     scene,
     camera,
-    update(frame, elapsed) {
+    update(frame, elapsed, delta) {
       const position = path.getPointAt(frame.cameraT);
       camera.position.copy(position);
       const targetT = Math.min(1, frame.cameraT + 0.035);
@@ -173,8 +175,10 @@ export function createWorldScene(profile: QualityProfile): WorldScene {
       particles.rotation.y = elapsed * 0.008;
       particles.position.y = Math.sin(elapsed * 0.18) * 0.16;
       sea.position.y = -0.08 + Math.sin(elapsed * 0.42) * 0.012;
+      dragon.update(delta, frame);
     },
     dispose() {
+      dragon.dispose();
       disposableGeometries.splice(0).forEach((item) => item.dispose());
       disposableMaterials.splice(0).forEach((item) => item.dispose());
     },

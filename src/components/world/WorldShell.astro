@@ -1,6 +1,10 @@
 <div id="world-root" data-world-state="shell">
   <canvas id="world-canvas" aria-hidden="true" hidden></canvas>
   <img data-world-poster src="/images/world-poster.webp" alt="" hidden />
+  <p data-dragon-companion data-dragon-mode="lead" class="dragon-companion">
+    <span aria-hidden="true">银龙 · 常伴</span>
+    <span class="sr-only">银龙始终陪伴你穿行、阅读与返回。</span>
+  </p>
   <nav data-fallback-destinations aria-label="内容入口" hidden>
     <a href="/thoughts/first-light/">感悟</a>
     <a href="/articles/after-the-long-night/">文章</a>
@@ -21,4 +25,5 @@
   [hidden] { display: none !important; }
   [data-fallback-destinations] { position: absolute; left: clamp(1.5rem, 8vw, 8rem); bottom: 2rem; z-index: 2; display: flex; gap: 1.1rem; font: 500 .75rem/1 var(--font-ui); letter-spacing: .12em; }
   [data-fallback-destinations] a { padding: .7rem 0; text-decoration-thickness: 1px; text-underline-offset: .35rem; }
+  .dragon-companion { position: fixed; right: clamp(1rem, 4vw, 3rem); top: 1.25rem; z-index: 3; margin: 0; color: rgba(220,233,243,.82); font: 500 .68rem/1 var(--font-ui); letter-spacing: .18em; text-shadow: 0 1px 16px #071425; }
 </style>
