@@ -1,3 +1,7 @@
+---
+import EntranceLayer from './EntranceLayer.astro';
+---
+
 <div id="world-root" data-world-state="shell">
   <canvas id="world-canvas" aria-hidden="true" hidden></canvas>
   <img data-world-poster src="/images/world-poster.webp" alt="" hidden />
@@ -12,6 +16,7 @@
     <a href="/collection/borrowed-light/">收藏</a>
   </nav>
 </div>
+<EntranceLayer />
 
 <script>
   import { mountWorld } from './WorldCanvas';

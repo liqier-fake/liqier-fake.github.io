@@ -1,0 +1,45 @@
+<nav class="entrance-layer" data-entrance-layer aria-label="月见世界入口">
+  <a class="entrance entrance--slip" data-world-entrance data-entrance-id="paper-slip:first-light" data-entrance-scene="paper-slip" data-entrance-state="distant" href="/thoughts/first-light/">
+    <span aria-hidden="true">一枚发光纸笺</span><strong>感悟</strong>
+  </a>
+  <a class="entrance entrance--pavilion" data-world-entrance data-entrance-id="essay-pavilion:after-the-long-night" data-entrance-scene="essay-pavilion" data-entrance-state="distant" href="/articles/after-the-long-night/">
+    <span aria-hidden="true">灯火仍亮的亭子</span><strong>文章</strong>
+  </a>
+  <a class="entrance entrance--corridor" data-world-entrance data-entrance-id="image-corridor:moonlit-water" data-entrance-scene="image-corridor" data-entrance-state="distant" href="/photography/moonlit-water/">
+    <span aria-hidden="true">悬浮的影像回廊</span><strong>照片</strong>
+  </a>
+  <a class="entrance entrance--tree" data-world-entrance data-entrance-id="moon-tree:borrowed-light" data-entrance-scene="moon-tree" data-entrance-state="distant" href="/collection/borrowed-light/">
+    <span aria-hidden="true">月光树下的拾取物</span><strong>收藏</strong>
+  </a>
+  <a class="entrance entrance--platform" data-world-entrance data-entrance-id="central-platform:about" data-entrance-scene="central-platform" data-entrance-state="distant" href="#about">
+    <span aria-hidden="true">中央水镜</span><strong>关于</strong>
+  </a>
+</nav>
+
+<script>
+  import { mountEntranceLayer } from '../../lib/world/entrances';
+  const layer = document.querySelector<HTMLElement>('[data-entrance-layer]');
+  if (layer) mountEntranceLayer(layer);
+</script>
+
+<style>
+  .entrance-layer { position: fixed; inset: 0; z-index: 4; pointer-events: none; }
+  .entrance { position: absolute; display: grid; min-width: 7.5rem; min-height: 44px; place-content: center; gap: .28rem; padding: .65rem 1rem; color: var(--ink); text-align: center; text-decoration: none; pointer-events: auto; opacity: .18; filter: blur(.4px); transform: translateY(8px) scale(.94); transition: opacity .35s ease, transform .35s ease, filter .35s ease, text-shadow .35s ease; }
+  .entrance span { color: var(--ink-muted); font: 400 .62rem/1.2 var(--font-ui); letter-spacing: .08em; }
+  .entrance strong { font: 500 .78rem/1 var(--font-ui); letter-spacing: .22em; }
+  .entrance[data-entrance-state="near"], .entrance[data-entrance-state="focused"] { opacity: .82; filter: none; transform: none; }
+  .entrance[data-entrance-state="focused"] { opacity: 1; text-shadow: 0 0 18px var(--lantern-amber), 0 0 34px #8eb9df; }
+  .entrance[data-entrance-state="entering"] { opacity: 0; transform: scale(1.12); }
+  .entrance--slip { left: 8vw; top: 42%; transform-origin: left center; }
+  .entrance--pavilion { right: 12vw; top: 31%; }
+  .entrance--corridor { right: 6vw; bottom: 21%; }
+  .entrance--tree { left: 13vw; bottom: 17%; }
+  .entrance--platform { left: 50%; top: 57%; translate: -50% -50%; }
+  @media (max-width: 600px) {
+    .entrance { min-width: 5.5rem; padding-inline: .5rem; }
+    .entrance span { display: none; }
+    .entrance--pavilion { right: 4vw; }
+    .entrance--tree { left: 4vw; }
+  }
+  @media (prefers-reduced-motion: reduce) { .entrance { transition: opacity .01ms; } }
+</style>
