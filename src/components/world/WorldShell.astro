@@ -1,0 +1,12 @@
+<div id="world-root" aria-hidden="true" data-world-state="shell">
+  <div class="world-sky"></div>
+  <div class="world-moon"></div>
+  <div class="world-water"></div>
+</div>
+
+<style>
+  #world-root { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: radial-gradient(circle at 67% 22%, #244b77 0, #0b2038 28%, #071425 68%); }
+  .world-sky { position: absolute; inset: 0; opacity: .28; background-image: radial-gradient(circle, #dce9f3 0 1px, transparent 1.5px); background-size: 73px 73px; }
+  .world-moon { position: absolute; width: min(34vw, 27rem); aspect-ratio: 1; border-radius: 50%; right: 10%; top: 10%; background: radial-gradient(circle at 35% 32%, #fff, #dce9f3 54%, #91a9bd 100%); box-shadow: 0 0 7rem rgba(220, 233, 243, .28); }
+  .world-water { position: absolute; inset: 57% 0 0; background: linear-gradient(180deg, rgba(18, 57, 107, .48), #06101d), repeating-linear-gradient(174deg, rgba(220, 233, 243, .08) 0 1px, transparent 1px 9px); }
+</style>

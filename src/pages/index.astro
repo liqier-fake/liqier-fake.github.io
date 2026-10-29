@@ -1,0 +1,20 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+---
+
+<SiteLayout>
+  <section class="arrival" aria-labelledby="site-title">
+    <p class="arrival-kicker">沿月光而行</p>
+    <h1 id="site-title">liqier-fake</h1>
+    <p class="arrival-copy">文字、影像与收集来的微光，停泊在一条银龙守望的路上。</p>
+    <p class="arrival-scroll" aria-hidden="true">向下滚动，进入世界</p>
+  </section>
+</SiteLayout>
+
+<style>
+  .arrival { min-height: 180vh; padding: 22vh clamp(1.5rem, 8vw, 8rem); text-shadow: 0 2px 28px rgba(0, 0, 0, .56); }
+  .arrival-kicker { margin: 0 0 1.2rem; color: var(--lantern-amber); font: 500 .75rem/1 var(--font-ui); letter-spacing: .24em; }
+  h1 { margin: 0; font-size: clamp(3.8rem, 12vw, 10rem); font-weight: 400; letter-spacing: -.055em; }
+  .arrival-copy { max-width: 31rem; margin: 1.5rem 0; color: var(--ink-muted); font-size: clamp(1rem, 2vw, 1.25rem); line-height: 1.9; }
+  .arrival-scroll { margin-top: 24vh; color: var(--ink-muted); font: 400 .75rem/1 var(--font-ui); letter-spacing: .18em; }
+</style>

@@ -1,0 +1,25 @@
+---
+import WorldShell from '../components/world/WorldShell.astro';
+import '../styles/global.css';
+
+interface Props { title?: string; description?: string; }
+const { title = 'liqier-fake', description = 'A moonlit world for writing, photographs, and collected light.' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#content-root">跳到内容</a>
+    <WorldShell />
+    <main id="content-root" tabindex="-1">
+      <slot />
+    </main>
+    <noscript><p>liqier-fake 仍可阅读；启用 JavaScript 后可以进入完整的月夜世界。</p></noscript>
+  </body>
+</html>

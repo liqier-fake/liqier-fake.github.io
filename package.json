@@ -1,0 +1,32 @@
+{
+  "name": "liqier-fake",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "packageManager": "pnpm@11.25.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "test": "vitest run",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "astro": "7.4.4",
+    "gsap": "3.13.0",
+    "three": "0.181.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.5",
+    "@axe-core/playwright": "4.11.0",
+    "@playwright/test": "1.56.1",
+    "@types/node": "24.10.0",
+    "@types/three": "0.181.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.12"
+  }
+}

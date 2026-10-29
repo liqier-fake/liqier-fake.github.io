@@ -1,0 +1,12 @@
+:root {
+  --moonless-indigo: #071425;
+  --deep-cobalt: #12396b;
+  --pearl-silver: #dce9f3;
+  --lantern-amber: #f1a65a;
+  --vermilion-gate: #c9493a;
+  --holographic-violet: #9a7cff;
+  --ink: #eef5f8;
+  --ink-muted: rgba(220, 233, 243, 0.68);
+  --font-reading: "Noto Serif SC", "Source Han Serif SC", "Songti SC", serif;
+  --font-ui: Inter, "Noto Sans SC", system-ui, sans-serif;
+}
