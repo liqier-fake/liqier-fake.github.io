@@ -1,0 +1,62 @@
+---
+import type { ImageMeta } from '../../lib/content/images';
+interface Props { images: ImageMeta[]; title: string; }
+const { images, title } = Astro.props;
+---
+
+<section class="photo-world" data-photo-sequence aria-labelledby="photo-title">
+  <a class="return" data-return-to-hub href="/">← 返回水镜</a>
+  <header>
+    <p>影像回廊</p>
+    <h1 id="photo-title" data-pretext-title="ripple" data-text-state="pending">{title}</h1>
+  </header>
+  <div class="photo-sequence">
+    {images.map((image, index) => (
+      <figure style={`--plane-index:${index};--ratio:${image.aspectRatio}`}>
+        <button class="photo-plane" type="button" data-photo-plane aria-label={`查看：${image.alt}`}>
+          <img src={image.src} srcset={image.srcset} sizes="(max-width: 720px) 92vw, 72vw" width={image.width} height={image.height} alt={image.alt} loading="lazy" decoding="async" />
+        </button>
+        <figcaption>{image.caption}</figcaption>
+      </figure>
+    ))}
+  </div>
+</section>
+
+<script>
+  import { mountPretext } from '../../lib/typography/pretext';
+  mountPretext();
+  const planes = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-photo-plane]'));
+  planes.forEach((plane) => {
+    plane.addEventListener('click', () => {
+      const active = plane.dataset.mediaState === 'focused';
+      planes.forEach((item) => delete item.dataset.mediaState);
+      if (!active) {
+        plane.dataset.mediaState = 'focused';
+        window.dispatchEvent(new CustomEvent('media:focus', { detail: plane }));
+      } else {
+        window.dispatchEvent(new CustomEvent('media:close'));
+      }
+    });
+  });
+  window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      planes.forEach((item) => delete item.dataset.mediaState);
+      window.dispatchEvent(new CustomEvent('media:close'));
+    }
+  });
+</script>
+
+<style>
+  .photo-world { position: relative; z-index: 5; min-height: 140vh; width: 100%; padding: 10vh clamp(1rem, 6vw, 6rem) 18vh; overflow: clip; }
+  header { width: min(70rem, 100%); margin: 0 auto 8vh; text-shadow: 0 2px 22px #071425; }
+  header p { color: var(--lantern-amber); font: 500 .7rem/1 var(--font-ui); letter-spacing: .22em; }
+  h1 { max-width: 12ch; margin: 0; font-size: clamp(3rem, 10vw, 8rem); font-weight: 400; line-height: .95; }
+  .photo-sequence { width: min(78rem, 100%); margin: auto; perspective: 1400px; }
+  figure { width: min(72vw, 62rem); margin: 0 auto 16vh; transform: translateX(calc((var(--plane-index) % 2) * 6vw - 3vw)) rotateY(calc((var(--plane-index) % 2) * -5deg + 2.5deg)); }
+  .photo-plane { display: block; width: 100%; min-height: 44px; padding: 0; overflow: hidden; border: 1px solid rgba(220,233,243,.35); background: #071425; color: inherit; box-shadow: 0 2rem 6rem rgba(0,0,0,.42); cursor: zoom-in; transition: transform .4s ease, filter .4s ease; }
+  .photo-plane img { display: block; width: 100%; height: auto; max-height: 78vh; object-fit: cover; }
+  .photo-plane[data-media-state="focused"] { transform: translateZ(3rem) scale(1.025); cursor: zoom-out; }
+  figcaption { padding-top: .8rem; color: var(--ink-muted); font: 400 .78rem/1.6 var(--font-ui); letter-spacing: .06em; }
+  .return { position: fixed; top: 1.2rem; left: clamp(1rem, 4vw, 3rem); z-index: 8; min-height: 44px; display: flex; align-items: center; color: var(--ink); font: 500 .72rem/1 var(--font-ui); letter-spacing: .14em; text-decoration: none; }
+  @media (max-width: 600px) { .photo-world { padding-inline: .75rem; } figure { width: 100%; transform: none; } }
+</style>

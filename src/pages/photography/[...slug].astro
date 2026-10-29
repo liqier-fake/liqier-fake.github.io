@@ -1,0 +1,19 @@
+---
+import { getCollection, render } from 'astro:content';
+import PhotoSequence from '../../components/content/PhotoSequence.astro';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import { normalizeImageMeta } from '../../lib/content/images';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('photography', ({ data }) => !data.draft);
+  return entries.map((entry) => ({ params: { slug: entry.data.slug }, props: { entry } }));
+}
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const image = normalizeImageMeta({ src: entry.data.image, alt: entry.data.alt, caption: entry.data.summary });
+---
+
+<SiteLayout title={`${entry.data.title} · liqier-fake`} description={entry.data.summary} worldView="reading">
+  <PhotoSequence title={entry.data.title} images={[image]} />
+  <div class="sr-only"><Content /></div>
+</SiteLayout>

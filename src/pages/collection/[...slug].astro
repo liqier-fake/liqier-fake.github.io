@@ -1,0 +1,41 @@
+---
+import { getCollection, render } from 'astro:content';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import { normalizeImageMeta } from '../../lib/content/images';
+import '../../styles/reading.css';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('collection', ({ data }) => !data.draft);
+  return entries.map((entry) => ({ params: { slug: entry.data.slug }, props: { entry } }));
+}
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const image = normalizeImageMeta({ src: entry.data.image, alt: entry.data.title, caption: entry.data.annotation });
+---
+
+<SiteLayout title={`${entry.data.title} · liqier-fake`} description={entry.data.summary} worldView="reading">
+  <section class="collection-world" data-reading-state="visible">
+    <a class="return" data-return-to-hub href="/">← 返回水镜</a>
+    <article class="collection-card">
+      <header><p>月光树下的收藏</p><h1>{entry.data.title}</h1><p>{entry.data.summary}</p></header>
+      <figure data-collected-image>
+        <img src={image.src} srcset={image.srcset} sizes="(max-width: 720px) 94vw, 64vw" width={image.width} height={image.height} alt={image.alt} loading="lazy" />
+        <figcaption>
+          <span data-image-creator>创作者：{entry.data.creator}</span>
+          <span data-image-rights>权利说明：{entry.data.rightsNote}</span>
+          <a href={entry.data.sourceUrl} rel="external">查看原始来源 ↗</a>
+        </figcaption>
+      </figure>
+      <div class="collection-note"><Content /></div>
+    </article>
+  </section>
+</SiteLayout>
+
+<style>
+  .collection-world { position: relative; z-index: 5; min-height: 100vh; padding: 10vh clamp(.75rem, 6vw, 6rem); }
+  .collection-card { width: min(68rem, 100%); margin: auto; padding: clamp(1rem, 4vw, 3rem); background: rgba(7,20,37,.7); border: 1px solid rgba(220,233,243,.24); backdrop-filter: blur(18px); }
+  header { max-width: 42rem; margin-bottom: 2rem; } header > p:first-child { color: var(--lantern-amber); font: 500 .7rem/1 var(--font-ui); letter-spacing: .2em; } h1 { margin: .5rem 0; font-size: clamp(3rem, 8vw, 7rem); font-weight: 400; }
+  figure { margin: 0; } img { display: block; width: 100%; height: auto; max-height: 68vh; object-fit: cover; }
+  figcaption { display: grid; gap: .5rem; padding: 1rem 0; color: var(--ink-muted); font: 400 .78rem/1.5 var(--font-ui); } figcaption a { color: var(--ink); }
+  .collection-note { max-width: 65ch; line-height: 1.9; }
+</style>
