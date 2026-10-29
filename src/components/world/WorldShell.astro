@@ -1,8 +1,10 @@
 ---
 import EntranceLayer from './EntranceLayer.astro';
+interface Props { view?: 'journey' | 'reading'; }
+const { view = 'journey' } = Astro.props;
 ---
 
-<div id="world-root" data-world-state="shell">
+<div id="world-root" data-world-state="shell" data-world-view={view}>
   <canvas id="world-canvas" aria-hidden="true" hidden></canvas>
   <img data-world-poster src="/images/world-poster.webp" alt="" hidden />
   <p data-dragon-companion data-dragon-mode="lead" class="dragon-companion">
@@ -16,7 +18,7 @@ import EntranceLayer from './EntranceLayer.astro';
     <a href="/collection/borrowed-light/">收藏</a>
   </nav>
 </div>
-<EntranceLayer />
+{view === 'journey' && <EntranceLayer />}
 
 <script>
   import { mountWorld } from './WorldCanvas';

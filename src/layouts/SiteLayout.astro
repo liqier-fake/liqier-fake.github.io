@@ -2,8 +2,8 @@
 import WorldShell from '../components/world/WorldShell.astro';
 import '../styles/global.css';
 
-interface Props { title?: string; description?: string; }
-const { title = 'liqier-fake', description = 'A moonlit world for writing, photographs, and collected light.' } = Astro.props;
+interface Props { title?: string; description?: string; worldView?: 'journey' | 'reading'; }
+const { title = 'liqier-fake', description = 'A moonlit world for writing, photographs, and collected light.', worldView = 'journey' } = Astro.props;
 ---
 
 <!doctype html>
@@ -16,7 +16,7 @@ const { title = 'liqier-fake', description = 'A moonlit world for writing, photo
   </head>
   <body>
     <a class="skip-link" href="#content-root">跳到内容</a>
-    <WorldShell />
+    <WorldShell view={worldView} />
     <main id="content-root" tabindex="-1">
       <slot />
     </main>

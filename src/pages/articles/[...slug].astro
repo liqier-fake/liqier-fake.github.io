@@ -1,0 +1,20 @@
+---
+import { getCollection, render } from 'astro:content';
+import ReadingPavilion from '../../components/reading/ReadingPavilion.astro';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import '../../styles/reading.css';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('articles', ({ data }) => !data.draft);
+  return entries.map((entry) => ({ params: { slug: entry.data.slug }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<SiteLayout title={`${entry.data.title} · liqier-fake`} description={entry.data.summary} worldView="reading">
+  <ReadingPavilion title={entry.data.title} summary={entry.data.summary} date={entry.data.date} kind="文章">
+    <Content />
+  </ReadingPavilion>
+</SiteLayout>

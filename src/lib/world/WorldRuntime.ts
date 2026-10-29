@@ -50,6 +50,14 @@ export class WorldRuntime {
     this.progress = progress;
   }
 
+  enterDestination(_id: string): void {
+    this.progress = 0.84;
+  }
+
+  returnToHub(): void {
+    this.progress = 0.58;
+  }
+
   dispose(): void {
     cancelAnimationFrame(this.frameId);
     window.removeEventListener('resize', this.resize);

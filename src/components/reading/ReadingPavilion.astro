@@ -1,0 +1,26 @@
+---
+interface Props {
+  title: string;
+  summary: string;
+  date: Date;
+  kind: '文章' | '感悟';
+}
+const { title, summary, date, kind } = Astro.props;
+---
+
+<section class="reading-scene" data-reading-state="visible">
+  <a class="return" data-return-to-hub href="/" aria-label="返回月见世界入口">← 返回水镜</a>
+  <article class="reading-pavilion" aria-labelledby="reading-title">
+    <header>
+      <p class="kind">{kind} · {date.toLocaleDateString('zh-CN')}</p>
+      <h1 id="reading-title" data-pretext-title="lunar-arc" data-text-state="pending">{title}</h1>
+      <p class="summary">{summary}</p>
+    </header>
+    <div class="reading-body"><slot /></div>
+  </article>
+</section>
+
+<script>
+  import { mountPretext } from '../../lib/typography/pretext';
+  mountPretext();
+</script>

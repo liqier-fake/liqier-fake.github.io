@@ -23,17 +23,22 @@ export function mountWorld(root: HTMLElement): () => void {
     });
     root.dataset.worldState = 'ready';
     canvas.hidden = false;
+    if (root.dataset.worldView === 'reading') runtime.enterDestination('reading-pavilion');
   } catch {
     showFallback('fallback');
   }
 
   const syncProgress = (): void => {
     const scrollRange = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-    const progress = window.scrollY / scrollRange;
+    const progress = root.dataset.worldView === 'reading' ? 0.84 : window.scrollY / scrollRange;
     runtime?.setProgress(progress);
     companion.dataset.dragonMode = sampleWorldFrame(progress, false).dragonMode;
   };
   syncProgress();
+  if (root.dataset.worldView !== 'reading') {
+    const saved = Number(sessionStorage.getItem('liqier:hub-scroll'));
+    if (Number.isFinite(saved) && saved > 0) requestAnimationFrame(() => window.scrollTo(0, saved));
+  }
   window.addEventListener('scroll', syncProgress, { passive: true });
 
   return () => {

@@ -1,0 +1,13 @@
+.reading-scene { position: relative; z-index: 5; min-height: 100vh; padding: clamp(5rem, 10vh, 8rem) clamp(1rem, 7vw, 7rem) 12vh; perspective: 1200px; }
+.reading-pavilion { width: min(46rem, 100%); margin-inline: auto; padding: clamp(2rem, 6vw, 5rem); color: #142331; background: linear-gradient(112deg, rgba(242,239,224,.96), rgba(218,228,231,.9)); border: 1px solid rgba(255,255,255,.55); box-shadow: 0 2rem 8rem rgba(1,8,18,.48), inset 0 0 3rem rgba(68,101,126,.08); transform: rotateX(1.2deg); transform-origin: top center; backdrop-filter: blur(18px); }
+.reading-pavilion::before { content: ''; position: absolute; inset: .7rem; border: 1px solid rgba(39,74,98,.16); pointer-events: none; }
+.reading-pavilion header { position: relative; padding-bottom: 2rem; border-bottom: 1px solid rgba(39,74,98,.22); }
+.reading-pavilion h1 { margin: .7rem 0 1rem; color: #0e1b27; font-size: clamp(2.6rem, 8vw, 6rem); font-weight: 400; line-height: .98; letter-spacing: -.035em; }
+.reading-pavilion .kind { margin: 0; color: #76532e; font: 500 .7rem/1 var(--font-ui); letter-spacing: .18em; }
+.reading-pavilion .summary { max-width: 38rem; margin: 0; color: #405363; line-height: 1.8; }
+.reading-body { padding-top: 2rem; font-size: clamp(1.02rem, 2vw, 1.18rem); line-height: 2; user-select: text; }
+.reading-body :where(p, blockquote, ul, ol) { max-width: 72ch; }
+.reading-body p { margin: 0 0 1.5em; }
+.return { position: fixed; z-index: 8; top: 1.2rem; left: clamp(1rem, 4vw, 3rem); min-height: 44px; display: inline-flex; align-items: center; color: var(--ink); font: 500 .72rem/1 var(--font-ui); letter-spacing: .14em; text-decoration: none; text-shadow: 0 1px 18px #071425; }
+@media (max-width: 600px) { .reading-scene { padding-inline: .75rem; } .reading-pavilion { padding: 2.4rem 1.4rem; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .reading-pavilion { transform: none; } }

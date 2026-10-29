@@ -103,11 +103,14 @@ export function mountEntranceLayer(root: HTMLElement): () => void {
   const onClick = (event: Event): void => {
     const node = event.currentTarget as HTMLAnchorElement;
     const id = node.dataset.entranceId ?? '';
+    event.preventDefault();
     if (controller.getState(id) !== 'focused') {
-      event.preventDefault();
       controller.focus(id);
       render();
       node.focus();
+    } else if (controller.confirm(id)) {
+      sessionStorage.setItem('liqier:hub-scroll', String(scrollY));
+      window.location.assign(node.href);
     }
   };
 
@@ -116,7 +119,10 @@ export function mountEntranceLayer(root: HTMLElement): () => void {
     const id = node.dataset.entranceId ?? '';
     if ((event.key === 'Enter' || event.key === ' ') && controller.getState(id) === 'focused') {
       event.preventDefault();
-      if (controller.confirm(id)) window.location.assign(node.href);
+      if (controller.confirm(id)) {
+        sessionStorage.setItem('liqier:hub-scroll', String(scrollY));
+        window.location.assign(node.href);
+      }
     }
   };
 
