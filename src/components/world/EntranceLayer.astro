@@ -24,10 +24,10 @@
 
 <style>
   .entrance-layer { position: fixed; inset: 0; z-index: 4; pointer-events: none; }
-  .entrance { position: absolute; display: grid; min-width: 7.5rem; min-height: 44px; place-content: center; gap: .28rem; padding: .65rem 1rem; color: var(--ink); text-align: center; text-decoration: none; pointer-events: auto; opacity: .18; filter: blur(.4px); transform: translateY(8px) scale(.94); transition: opacity .35s ease, transform .35s ease, filter .35s ease, text-shadow .35s ease; }
+  .entrance { position: absolute; display: grid; min-width: 7.5rem; min-height: 44px; place-content: center; gap: .28rem; padding: .65rem 1rem; color: var(--ink); text-align: center; text-decoration: none; pointer-events: auto; opacity: 0; visibility: hidden; filter: blur(.4px); transform: translateY(8px) scale(.94); transition: opacity .35s ease, transform .35s ease, filter .35s ease, text-shadow .35s ease; }
   .entrance span { color: var(--ink-muted); font: 400 .62rem/1.2 var(--font-ui); letter-spacing: .08em; }
   .entrance strong { font: 500 .78rem/1 var(--font-ui); letter-spacing: .22em; }
-  .entrance[data-entrance-state="near"], .entrance[data-entrance-state="focused"] { opacity: .82; filter: none; transform: none; }
+  .entrance[data-entrance-state="near"], .entrance[data-entrance-state="focused"] { opacity: .92; visibility: visible; filter: none; transform: none; }
   .entrance[data-entrance-state="focused"] { opacity: 1; text-shadow: 0 0 18px var(--lantern-amber), 0 0 34px #8eb9df; }
   .entrance[data-entrance-state="entering"] { opacity: 0; transform: scale(1.12); }
   .entrance--slip { left: 8vw; top: 42%; transform-origin: left center; }

@@ -1,0 +1,32 @@
+---
+import { getCollection } from 'astro:content';
+const thoughts = await getCollection('thoughts', ({ data }) => !data.draft);
+const articles = await getCollection('articles', ({ data }) => !data.draft);
+const photography = await getCollection('photography', ({ data }) => !data.draft);
+const collection = await getCollection('collection', ({ data }) => !data.draft);
+const groups = [
+  { label: '感悟', base: 'thoughts', entries: thoughts },
+  { label: '文章', base: 'articles', entries: articles },
+  { label: '照片', base: 'photography', entries: photography },
+  { label: '收藏', base: 'collection', entries: collection },
+];
+---
+
+<nav class="site-map" data-site-map aria-label="完整内容地图">
+  {groups.map((group) => (
+    <section aria-labelledby={`map-${group.base}`}>
+      <h2 id={`map-${group.base}`}>{group.label}</h2>
+      <ul>{group.entries.map((entry) => <li><a href={`/${group.base}/${entry.data.slug}/`}>{group.label}：{entry.data.title}<span>{entry.data.summary}</span></a></li>)}</ul>
+    </section>
+  ))}
+</nav>
+
+<style>
+  .site-map { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(2rem, 6vw, 6rem); width: min(70rem, 100%); margin: auto; }
+  section { border-top: 1px solid rgba(220,233,243,.28); }
+  h2 { color: var(--lantern-amber); font: 500 .75rem/1 var(--font-ui); letter-spacing: .22em; }
+  ul { padding: 0; list-style: none; }
+  a { display: grid; min-height: 44px; gap: .45rem; padding: 1rem 0; text-decoration: none; }
+  a span { color: var(--ink-muted); font-size: .9rem; line-height: 1.6; }
+  @media (max-width: 600px) { .site-map { grid-template-columns: 1fr; } }
+</style>

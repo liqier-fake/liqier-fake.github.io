@@ -8,6 +8,19 @@ export interface WorldRuntimeOptions {
   onContextLost(): void;
 }
 
+export interface WorldDiagnostics {
+  renderCount: number;
+  paused: boolean;
+  pixelRatio: number;
+  particleCount: number;
+  tier: QualityProfile['tier'];
+  cameraT: number;
+}
+
+declare global {
+  interface Window { __LIQIER_DIAGNOSTICS__?: WorldDiagnostics; }
+}
+
 export class WorldRuntime {
   readonly profile: QualityProfile;
   private readonly renderer: THREE.WebGLRenderer;
@@ -19,6 +32,7 @@ export class WorldRuntime {
   private visible = true;
   private readonly startedAt = performance.now();
   private previousTime = performance.now();
+  private readonly diagnostics?: WorldDiagnostics;
 
   static mount(canvas: HTMLCanvasElement, options: WorldRuntimeOptions): WorldRuntime {
     return new WorldRuntime(canvas, options);
@@ -39,6 +53,16 @@ export class WorldRuntime {
     this.renderer.shadowMap.enabled = this.profile.shadows;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.world = createWorldScene(this.profile);
+    if (navigator.webdriver || new URLSearchParams(location.search).has('diagnostics')) {
+      this.diagnostics = window.__LIQIER_DIAGNOSTICS__ = {
+        renderCount: 0,
+        paused: false,
+        pixelRatio: this.profile.pixelRatio,
+        particleCount: this.profile.particleCount,
+        tier: this.profile.tier,
+        cameraT: 0,
+      };
+    }
     this.resize();
     window.addEventListener('resize', this.resize);
     document.addEventListener('visibilitychange', this.onVisibilityChange);
@@ -77,6 +101,7 @@ export class WorldRuntime {
 
   private readonly onVisibilityChange = (): void => {
     this.visible = !document.hidden;
+    if (this.diagnostics) this.diagnostics.paused = !this.visible;
     if (this.visible && this.frameId === 0) this.renderLoop();
   };
 
@@ -97,6 +122,10 @@ export class WorldRuntime {
     const delta = (now - this.previousTime) / 1000;
     this.previousTime = now;
     const frame = sampleWorldFrame(this.progress, this.options.reducedMotion);
+    if (this.diagnostics) {
+      this.diagnostics.renderCount += 1;
+      this.diagnostics.cameraT = frame.cameraT;
+    }
     this.world.update(frame, elapsed, delta);
     this.renderer.render(this.world.scene, this.world.camera);
     this.frameId = requestAnimationFrame(this.renderLoop);

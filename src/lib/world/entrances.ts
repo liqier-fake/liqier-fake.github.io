@@ -78,7 +78,10 @@ export function mountEntranceLayer(root: HTMLElement): () => void {
 
   const render = (): void => {
     nodes.forEach((node) => {
-      node.dataset.entranceState = controller.getState(node.dataset.entranceId ?? '');
+      const state = controller.getState(node.dataset.entranceId ?? '');
+      node.dataset.entranceState = state;
+      node.tabIndex = state === 'distant' ? -1 : 0;
+      node.setAttribute('aria-hidden', state === 'distant' ? 'true' : 'false');
     });
   };
 

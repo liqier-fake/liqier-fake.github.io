@@ -16,9 +16,11 @@ export function mountWorld(root: HTMLElement): () => void {
   };
 
   let runtime: WorldRuntime | undefined;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  root.dataset.motion = reducedMotion ? 'reduced' : 'full';
   try {
     runtime = WorldRuntime.mount(canvas, {
-      reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+      reducedMotion,
       onContextLost: () => showFallback('lost'),
     });
     root.dataset.worldState = 'ready';
