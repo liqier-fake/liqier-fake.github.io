@@ -1,5 +1,6 @@
 ---
 import WorldShell from '../components/world/WorldShell.astro';
+import { sitePath } from '../lib/sitePath';
 import '../styles/global.css';
 
 interface Props { title?: string; description?: string; worldView?: 'journey' | 'reading'; }
@@ -20,7 +21,7 @@ const { title = 'liqier-fake', description = 'A moonlit world for writing, photo
     <main id="content-root" tabindex="-1">
       <slot />
     </main>
-    <a class="site-map-link" href="/sitemap/">内容地图</a>
+    <a class="site-map-link" href={sitePath('/sitemap/')}>内容地图</a>
     <noscript><p>liqier-fake 仍可阅读；启用 JavaScript 后可以进入完整的月夜世界。</p></noscript>
   </body>
 </html>

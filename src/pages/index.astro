@@ -9,6 +9,11 @@ import SiteLayout from '../layouts/SiteLayout.astro';
     <p class="arrival-copy">文字、影像与收集来的微光，停泊在一条银龙守望的路上。</p>
     <p class="arrival-scroll" aria-hidden="true">向下滚动，进入世界</p>
   </section>
+  <section id="about" class="about" aria-labelledby="about-title">
+    <p>中央水镜</p>
+    <h2 id="about-title">关于这片世界</h2>
+    <p>这里收留未完成的文字、自己拍下的片刻，以及从别处拾来的光。银龙会一直在路旁，等我慢慢把它们整理成真正属于自己的世界。</p>
+  </section>
 </SiteLayout>
 
 <style>
@@ -17,4 +22,8 @@ import SiteLayout from '../layouts/SiteLayout.astro';
   h1 { margin: 0; font-size: clamp(3.8rem, 12vw, 10rem); font-weight: 400; letter-spacing: -.055em; }
   .arrival-copy { max-width: 31rem; margin: 1.5rem 0; color: var(--ink-muted); font-size: clamp(1rem, 2vw, 1.25rem); line-height: 1.9; }
   .arrival-scroll { margin-top: 24vh; color: var(--ink-muted); font: 400 .75rem/1 var(--font-ui); letter-spacing: .18em; }
+  .about { min-height: 100vh; display: grid; place-content: center; gap: 1rem; padding: 18vh clamp(1.5rem, 16vw, 16rem); background: radial-gradient(circle, rgba(18,57,107,.5), transparent 68%); text-align: center; }
+  .about > p:first-child { color: var(--lantern-amber); font: 500 .7rem/1 var(--font-ui); letter-spacing: .2em; }
+  .about h2 { margin: 0; font-size: clamp(2.6rem, 7vw, 6rem); font-weight: 400; }
+  .about p:last-child { max-width: 40rem; margin: auto; color: var(--ink-muted); line-height: 2; }
 </style>

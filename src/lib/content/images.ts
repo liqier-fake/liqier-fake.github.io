@@ -18,7 +18,7 @@ export interface ImageMeta {
 }
 
 export function normalizeImageMeta(input: ImageMetaInput): ImageMeta {
-  const src = input.src?.trim() || '/images/world-poster.webp';
+  const src = sitePath(input.src?.trim() || '/images/world-poster.webp');
   const rawWidth = Number.isFinite(input.width) && (input.width ?? 0) > 0 ? input.width! : 1600;
   const rawHeight = Number.isFinite(input.height) && (input.height ?? 0) > 0 ? input.height! : 1000;
   const scale = Math.min(1, 4096 / Math.max(rawWidth, rawHeight));
@@ -37,3 +37,5 @@ export function normalizeImageMeta(input: ImageMetaInput): ImageMeta {
     srcset: `${src} 768w, ${src} 1600w`,
   };
 }
+import { sitePath } from '../sitePath';
+

@@ -1,11 +1,12 @@
 ---
 import type { ImageMeta } from '../../lib/content/images';
+import { sitePath } from '../../lib/sitePath';
 interface Props { images: ImageMeta[]; title: string; }
 const { images, title } = Astro.props;
 ---
 
 <section class="photo-world" data-photo-sequence aria-labelledby="photo-title">
-  <a class="return" data-return-to-hub href="/">← 返回水镜</a>
+  <a class="return" data-return-to-hub href={sitePath('/')}>← 返回水镜</a>
   <header>
     <p>影像回廊</p>
     <h1 id="photo-title" data-pretext-title="ripple" data-text-state="pending">{title}</h1>

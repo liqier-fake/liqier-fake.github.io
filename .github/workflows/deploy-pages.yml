@@ -1,0 +1,61 @@
+name: Deploy liqier-fake to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Enable pnpm
+        run: corepack enable
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Resolve Pages URL
+        shell: bash
+        run: |
+          repository_name="${GITHUB_REPOSITORY#*/}"
+          base_path="/${repository_name}"
+          if [[ "${repository_name}" == "${GITHUB_REPOSITORY_OWNER}.github.io" ]]; then
+            base_path="/"
+          fi
+          echo "PUBLIC_SITE_URL=https://${GITHUB_REPOSITORY_OWNER}.github.io" >> "$GITHUB_ENV"
+          echo "PUBLIC_BASE_PATH=${base_path}" >> "$GITHUB_ENV"
+      - name: Verify source
+        run: pnpm test && pnpm check
+      - name: Build static site
+        run: pnpm build
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@v4

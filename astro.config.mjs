@@ -4,4 +4,6 @@ export default defineConfig({
   output: 'static',
   site: process.env.PUBLIC_SITE_URL ?? 'https://example.github.io',
   base: process.env.PUBLIC_BASE_PATH ?? '/',
+  trailingSlash: 'always',
+  vite: { build: { chunkSizeWarningLimit: 550 } },
 });

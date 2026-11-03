@@ -4,6 +4,7 @@ dist/
 .superpowers/
 playwright-report/
 test-results/
+artifacts/
 coverage/
 .DS_Store
 *.log

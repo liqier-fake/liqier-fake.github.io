@@ -1,14 +1,18 @@
+---
+import { sitePath } from '../../lib/sitePath';
+---
+
 <nav class="entrance-layer" data-entrance-layer aria-label="月见世界入口">
-  <a class="entrance entrance--slip" data-world-entrance data-entrance-id="paper-slip:first-light" data-entrance-scene="paper-slip" data-entrance-state="distant" href="/thoughts/first-light/">
+  <a class="entrance entrance--slip" data-world-entrance data-entrance-id="paper-slip:first-light" data-entrance-scene="paper-slip" data-entrance-state="distant" href={sitePath('/thoughts/first-light/')}>
     <span aria-hidden="true">一枚发光纸笺</span><strong>感悟</strong>
   </a>
-  <a class="entrance entrance--pavilion" data-world-entrance data-entrance-id="essay-pavilion:after-the-long-night" data-entrance-scene="essay-pavilion" data-entrance-state="distant" href="/articles/after-the-long-night/">
+  <a class="entrance entrance--pavilion" data-world-entrance data-entrance-id="essay-pavilion:after-the-long-night" data-entrance-scene="essay-pavilion" data-entrance-state="distant" href={sitePath('/articles/after-the-long-night/')}>
     <span aria-hidden="true">灯火仍亮的亭子</span><strong>文章</strong>
   </a>
-  <a class="entrance entrance--corridor" data-world-entrance data-entrance-id="image-corridor:moonlit-water" data-entrance-scene="image-corridor" data-entrance-state="distant" href="/photography/moonlit-water/">
+  <a class="entrance entrance--corridor" data-world-entrance data-entrance-id="image-corridor:moonlit-water" data-entrance-scene="image-corridor" data-entrance-state="distant" href={sitePath('/photography/moonlit-water/')}>
     <span aria-hidden="true">悬浮的影像回廊</span><strong>照片</strong>
   </a>
-  <a class="entrance entrance--tree" data-world-entrance data-entrance-id="moon-tree:borrowed-light" data-entrance-scene="moon-tree" data-entrance-state="distant" href="/collection/borrowed-light/">
+  <a class="entrance entrance--tree" data-world-entrance data-entrance-id="moon-tree:borrowed-light" data-entrance-scene="moon-tree" data-entrance-state="distant" href={sitePath('/collection/borrowed-light/')}>
     <span aria-hidden="true">月光树下的拾取物</span><strong>收藏</strong>
   </a>
   <a class="entrance entrance--platform" data-world-entrance data-entrance-id="central-platform:about" data-entrance-scene="central-platform" data-entrance-state="distant" href="#about">

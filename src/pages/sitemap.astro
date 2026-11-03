@@ -1,11 +1,12 @@
 ---
 import SiteMap from '../components/accessibility/SiteMap.astro';
 import SiteLayout from '../layouts/SiteLayout.astro';
+import { sitePath } from '../lib/sitePath';
 ---
 
 <SiteLayout title="内容地图 · liqier-fake" description="不依赖 3D 场景的完整内容入口" worldView="reading">
   <section class="map-page">
-    <a href="/" class="back">← 返回月见世界</a>
+    <a href={sitePath('/')} class="back">← 返回月见世界</a>
     <header><p>另一条路</p><h1>内容地图</h1><p>如果不想穿过 3D 世界，也可以从这里直接抵达所有文字与影像。</p></header>
     <SiteMap />
   </section>

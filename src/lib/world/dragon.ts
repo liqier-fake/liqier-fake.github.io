@@ -20,7 +20,7 @@ export interface DragonPose {
 const TAU = Math.PI * 2;
 
 const modeOffsets: Record<DragonMode, DragonVector> = {
-  lead: { x: -1.5, y: 4.4, z: -3 },
+  lead: { x: 2.8, y: 4.8, z: -10 },
   circle: { x: 0, y: 6.2, z: -16 },
   rest: { x: 5.8, y: 2.1, z: -21 },
   indicate: { x: 6.2, y: 4.1, z: -27 },
@@ -35,7 +35,7 @@ export function dragonModeForPhase(phase: WorldPhase): DragonMode {
 function pointFor(mode: DragonMode, t: number): DragonVector {
   const angle = (((t % 1) + 1) % 1) * TAU;
   const base = modeOffsets[mode];
-  const radius = mode === 'circle' ? 6.4 : mode === 'idle' ? 3.1 : mode === 'rest' ? 1.2 : 2.25;
+  const radius = mode === 'circle' ? 6.4 : mode === 'idle' ? 3.1 : mode === 'rest' ? 1.2 : mode === 'lead' ? 1.2 : 2.25;
   const pace = mode === 'indicate' ? 0.48 : mode === 'rest' ? 0.2 : 1;
   return {
     x: base.x + Math.cos(angle * pace) * radius,
@@ -80,34 +80,43 @@ export class DragonController {
     this.group.name = 'silver-dragon-companion';
 
     const pearl = this.keepMaterial(new THREE.MeshPhysicalMaterial({
-      color: 0xcbd8e2,
-      emissive: 0x486b88,
-      emissiveIntensity: 0.38,
+      color: 0xe3edf3,
+      emissive: 0x789ab4,
+      emissiveIntensity: 0.5,
       metalness: 0.7,
       roughness: 0.24,
       clearcoat: 0.8,
     }));
     const mane = this.keepMaterial(new THREE.MeshBasicMaterial({ color: 0xe8f4ff, transparent: true, opacity: 0.72 }));
-    const bodyGeometry = this.keepGeometry(new THREE.SphereGeometry(0.48, 12, 8));
+    const bodyGeometry = this.keepGeometry(new THREE.SphereGeometry(0.29, 12, 8));
 
-    for (let index = 0; index < 18; index += 1) {
+    for (let index = 0; index < 22; index += 1) {
       const segment = new THREE.Mesh(bodyGeometry, pearl);
-      const scale = 1 - index * 0.032;
-      segment.scale.set(scale * 1.22, scale, scale * 1.45);
+      const scale = 1 - index * 0.034;
+      segment.scale.set(scale * 1.18, scale, scale * 1.38);
       segment.castShadow = profile.shadows;
       this.segments.push(segment);
       this.group.add(segment);
     }
 
     const head = this.segments[0];
-    head.scale.set(1.5, 1.12, 1.62);
+    head.scale.set(1.72, 1.2, 1.8);
+    const eyeMaterial = this.keepMaterial(new THREE.MeshBasicMaterial({ color: 0xf1a65a }));
+    const eyeGeometry = this.keepGeometry(new THREE.SphereGeometry(0.055, 8, 6));
+    for (const side of [-1, 1]) {
+      const eye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+      eye.position.set(side * 0.23, 0.13, -0.23);
+      head.add(eye);
+    }
     for (const side of [-1, 1]) {
       const horn = new THREE.Mesh(this.keepGeometry(new THREE.ConeGeometry(0.13, 1.3, 7)), mane);
-      horn.position.set(side * 0.36, 0.56, -0.18);
+      horn.scale.setScalar(0.66);
+      horn.position.set(side * 0.29, 0.4, 0.05);
       horn.rotation.z = side * -0.38;
       head.add(horn);
       const ribbon = new THREE.Mesh(this.keepGeometry(new THREE.PlaneGeometry(0.14, 2.4, 1, 6)), mane);
-      ribbon.position.set(side * 0.48, 0.12, 0.74);
+      ribbon.scale.setScalar(0.72);
+      ribbon.position.set(side * 0.4, 0.08, 0.62);
       ribbon.rotation.x = -0.42;
       head.add(ribbon);
     }
@@ -135,14 +144,14 @@ export class DragonController {
     const pose = sampleDragonPose(this.mode, this.time * 0.055, this.trailCap);
     this.group.position.set(pose.position.x, pose.position.y, pose.position.z);
     this.group.lookAt(pose.lookAt.x, pose.lookAt.y, pose.lookAt.z);
-    this.group.rotation.z += pose.roll;
+    this.group.rotation.z = pose.roll;
 
     for (let index = 0; index < this.segments.length; index += 1) {
       const phase = this.time * 2.2 - index * 0.38;
       this.segments[index].position.set(
-        Math.sin(phase) * index * 0.035,
-        Math.cos(phase * 0.72) * index * 0.018,
-        index * 0.58,
+        Math.sin(phase) * Math.min(0.8, index * 0.045),
+        Math.cos(phase * 0.72) * Math.min(0.34, index * 0.02),
+        -index * 0.4,
       );
       this.segments[index].rotation.y = Math.sin(phase) * 0.16;
     }

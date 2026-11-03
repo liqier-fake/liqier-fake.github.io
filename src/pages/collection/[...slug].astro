@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content';
 import SiteLayout from '../../layouts/SiteLayout.astro';
 import { normalizeImageMeta } from '../../lib/content/images';
+import { sitePath } from '../../lib/sitePath';
 import '../../styles/reading.css';
 
 export async function getStaticPaths() {
@@ -15,7 +16,7 @@ const image = normalizeImageMeta({ src: entry.data.image, alt: entry.data.title,
 
 <SiteLayout title={`${entry.data.title} · liqier-fake`} description={entry.data.summary} worldView="reading">
   <section class="collection-world" data-reading-state="visible">
-    <a class="return" data-return-to-hub href="/">← 返回水镜</a>
+    <a class="return" data-return-to-hub href={sitePath('/')}>← 返回水镜</a>
     <article class="collection-card">
       <header><p>月光树下的收藏</p><h1>{entry.data.title}</h1><p>{entry.data.summary}</p></header>
       <figure data-collected-image>

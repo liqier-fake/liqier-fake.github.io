@@ -1,21 +1,22 @@
 ---
 import EntranceLayer from './EntranceLayer.astro';
+import { sitePath } from '../../lib/sitePath';
 interface Props { view?: 'journey' | 'reading'; }
 const { view = 'journey' } = Astro.props;
 ---
 
 <div id="world-root" data-world-state="shell" data-world-view={view}>
   <canvas id="world-canvas" aria-hidden="true" hidden></canvas>
-  <img data-world-poster src="/images/world-poster.webp" alt="" hidden />
+  <img data-world-poster src={sitePath('/images/world-poster.webp')} alt="" hidden />
   <p data-dragon-companion data-dragon-mode="lead" class="dragon-companion">
     <span aria-hidden="true">银龙 · 常伴</span>
     <span class="sr-only">银龙始终陪伴你穿行、阅读与返回。</span>
   </p>
   <nav data-fallback-destinations aria-label="内容入口" hidden>
-    <a href="/thoughts/first-light/">感悟</a>
-    <a href="/articles/after-the-long-night/">文章</a>
-    <a href="/photography/moonlit-water/">照片</a>
-    <a href="/collection/borrowed-light/">收藏</a>
+    <a href={sitePath('/thoughts/first-light/')}>感悟</a>
+    <a href={sitePath('/articles/after-the-long-night/')}>文章</a>
+    <a href={sitePath('/photography/moonlit-water/')}>照片</a>
+    <a href={sitePath('/collection/borrowed-light/')}>收藏</a>
   </nav>
 </div>
 {view === 'journey' && <EntranceLayer />}

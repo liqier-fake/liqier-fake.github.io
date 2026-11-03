@@ -1,4 +1,4 @@
-import { WorldRuntime } from '../../lib/world/WorldRuntime';
+import type { WorldRuntime } from '../../lib/world/WorldRuntime';
 import { sampleWorldFrame } from '../../lib/world/timeline';
 
 export function mountWorld(root: HTMLElement): () => void {
@@ -16,19 +16,11 @@ export function mountWorld(root: HTMLElement): () => void {
   };
 
   let runtime: WorldRuntime | undefined;
+  let disposed = false;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   root.dataset.motion = reducedMotion ? 'reduced' : 'full';
-  try {
-    runtime = WorldRuntime.mount(canvas, {
-      reducedMotion,
-      onContextLost: () => showFallback('lost'),
-    });
-    root.dataset.worldState = 'ready';
-    canvas.hidden = false;
-    if (root.dataset.worldView === 'reading') runtime.enterDestination('reading-pavilion');
-  } catch {
-    showFallback('fallback');
-  }
+  root.dataset.worldState = 'loading';
+  poster.hidden = false;
 
   const syncProgress = (): void => {
     const scrollRange = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
@@ -36,6 +28,24 @@ export function mountWorld(root: HTMLElement): () => void {
     runtime?.setProgress(progress);
     companion.dataset.dragonMode = sampleWorldFrame(progress, false).dragonMode;
   };
+  const start = async (): Promise<void> => {
+    try {
+      const { WorldRuntime } = await import('../../lib/world/WorldRuntime');
+      if (disposed) return;
+      runtime = WorldRuntime.mount(canvas, {
+        reducedMotion,
+        onContextLost: () => showFallback('lost'),
+      });
+      root.dataset.worldState = 'ready';
+      poster.hidden = true;
+      canvas.hidden = false;
+      if (root.dataset.worldView === 'reading') runtime.enterDestination('reading-pavilion');
+      syncProgress();
+    } catch {
+      if (!disposed) showFallback('fallback');
+    }
+  };
+  void start();
   syncProgress();
   if (root.dataset.worldView !== 'reading') {
     const saved = Number(sessionStorage.getItem('liqier:hub-scroll'));
@@ -44,6 +54,7 @@ export function mountWorld(root: HTMLElement): () => void {
   window.addEventListener('scroll', syncProgress, { passive: true });
 
   return () => {
+    disposed = true;
     window.removeEventListener('scroll', syncProgress);
     runtime?.dispose();
   };
