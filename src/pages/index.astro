@@ -1,29 +1,154 @@
 ---
+import { getCollection } from 'astro:content';
 import SiteLayout from '../layouts/SiteLayout.astro';
+import ForegroundLayer from '../components/world/ForegroundLayer.astro';
+import ChapterRail from '../components/world/ChapterRail.astro';
+import Preloader from '../components/world/Preloader.astro';
+
+const visible = <T extends { data: { draft?: boolean } }>(items: T[]) => items.filter((item) => !item.data.draft).length;
+const counts = {
+  thoughts: visible(await getCollection('thoughts')),
+  articles: visible(await getCollection('articles')),
+  photography: visible(await getCollection('photography')),
+  collection: visible(await getCollection('collection')),
+};
+const pad = (n: number) => String(n).padStart(2, '0');
 ---
 
 <SiteLayout>
-  <section class="arrival" aria-labelledby="site-title">
-    <p class="arrival-kicker">沿月光而行</p>
-    <h1 id="site-title">liqier-fake</h1>
-    <p class="arrival-copy">文字、影像与收集来的微光，停泊在一条银龙守望的路上。</p>
-    <p class="arrival-scroll" aria-hidden="true">向下滚动，进入世界</p>
+  <Preloader />
+  <ForegroundLayer />
+  <ChapterRail />
+
+  <section class="chapter hero" id="arrival" data-chapter="0" aria-labelledby="site-title">
+    <div class="copy">
+      <p class="eyebrow" data-rv="up"><span class="eyebrow-index">序</span>沿月光而行</p>
+      <h1 id="site-title" class="wordmark" data-rv="letters">liqier-fake</h1>
+      <p class="lede" data-rv="up" style="--rv-delay: 380ms">文字、影像与收集来的微光，停泊在一条银龙守望的路上。</p>
+    </div>
+    <p class="scroll-cue" aria-hidden="true"><span></span>向下滚动，进入世界</p>
   </section>
-  <section id="about" class="about" aria-labelledby="about-title">
-    <p>中央水镜</p>
-    <h2 id="about-title">关于这片世界</h2>
-    <p>这里收留未完成的文字、自己拍下的片刻，以及从别处拾来的光。银龙会一直在路旁，等我慢慢把它们整理成真正属于自己的世界。</p>
+
+  <section class="chapter chapter--right" id="gate" data-chapter="1" aria-labelledby="gate-title">
+    <div class="copy">
+      <p class="eyebrow" data-rv="up"><span class="eyebrow-index">壹</span>朱门</p>
+      <h2 id="gate-title" class="display" data-rv="chars">穿过朱门，<br />时间放慢一拍</h2>
+      <p class="body" data-rv="up">外面的世界走得很快。门的这一边，灯一盏一盏地亮着，只照亮脚下的一小段路——刚好够走到下一盏。</p>
+    </div>
+  </section>
+
+  <section class="chapter" id="pavilion" data-chapter="2" aria-labelledby="pavilion-title">
+    <div class="copy">
+      <p class="eyebrow" data-rv="up"><span class="eyebrow-index">贰</span>灯亭</p>
+      <h2 id="pavilion-title" class="display" data-rv="chars">有些话，<br />要在灯下慢慢写</h2>
+      <p class="body" data-rv="up">灯火仍亮的亭子里，放着写了很久的文章。走近，推门，就能在这里把它读完，不必离开这片夜色。</p>
+      <dl class="stats" data-rv="up">
+        <div><dt>文章</dt><dd>{pad(counts.articles)}</dd></div>
+        <div><dt>感悟</dt><dd>{pad(counts.thoughts)}</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="chapter chapter--right" id="corridor" data-chapter="3" aria-labelledby="corridor-title">
+    <div class="copy">
+      <p class="eyebrow" data-rv="up"><span class="eyebrow-index">叁</span>回廊与月光树</p>
+      <h2 id="corridor-title" class="display" data-rv="chars">光停在玻璃里，<br />就成了记忆</h2>
+      <p class="body" data-rv="up">悬浮的影像回廊收着自己拍下的片刻；月光树上挂着从别处拾来的光，每一片都写明来处。</p>
+      <dl class="stats" data-rv="up">
+        <div><dt>照片</dt><dd>{pad(counts.photography)}</dd></div>
+        <div><dt>收藏</dt><dd>{pad(counts.collection)}</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="chapter chapter--hub" id="hub" data-chapter="4" aria-labelledby="hub-title">
+    <div class="copy">
+      <p class="eyebrow" data-rv="up"><span class="eyebrow-index">肆</span>水镜之上</p>
+      <h2 id="hub-title" class="display" data-rv="chars">选一处，停下来</h2>
+      <p class="body" data-rv="up">靠近发光的地方：轻点一次让它亮起，再点一次走进去。</p>
+    </div>
+  </section>
+
+  <section id="about" class="chapter about" data-chapter="5" aria-labelledby="about-title">
+    <div class="copy">
+      <p class="eyebrow" data-rv="up"><span class="eyebrow-index">终</span>中央水镜</p>
+      <h2 id="about-title" class="display" data-rv="chars">关于这片世界</h2>
+      <p class="body" data-rv="up">这里收留未完成的文字、自己拍下的片刻，以及从别处拾来的光。银龙会一直在路旁，等我慢慢把它们整理成真正属于自己的世界。</p>
+    </div>
   </section>
 </SiteLayout>
 
+<script>
+  import { mountReveal } from '../lib/ui/reveal';
+  mountReveal(document);
+</script>
+
 <style>
-  .arrival { min-height: 180vh; padding: 22vh clamp(1.5rem, 8vw, 8rem); text-shadow: 0 2px 28px rgba(0, 0, 0, .56); }
-  .arrival-kicker { margin: 0 0 1.2rem; color: var(--lantern-amber); font: 500 .75rem/1 var(--font-ui); letter-spacing: .24em; }
-  h1 { margin: 0; font-size: clamp(3.8rem, 12vw, 10rem); font-weight: 400; letter-spacing: -.055em; }
-  .arrival-copy { max-width: 31rem; margin: 1.5rem 0; color: var(--ink-muted); font-size: clamp(1rem, 2vw, 1.25rem); line-height: 1.9; }
-  .arrival-scroll { margin-top: 24vh; color: var(--ink-muted); font: 400 .75rem/1 var(--font-ui); letter-spacing: .18em; }
-  .about { min-height: 100vh; display: grid; place-content: center; gap: 1rem; padding: 18vh clamp(1.5rem, 16vw, 16rem); background: radial-gradient(circle, rgba(18,57,107,.5), transparent 68%); text-align: center; }
-  .about > p:first-child { color: var(--lantern-amber); font: 500 .7rem/1 var(--font-ui); letter-spacing: .2em; }
-  .about h2 { margin: 0; font-size: clamp(2.6rem, 7vw, 6rem); font-weight: 400; }
-  .about p:last-child { max-width: 40rem; margin: auto; color: var(--ink-muted); line-height: 2; }
+  .chapter { position: relative; z-index: 2; display: grid; align-content: center; padding: 0 clamp(1.5rem, 8vw, 8.5rem); }
+  .chapter::before {
+    content: ''; position: absolute; z-index: -1; inset: 10% auto 10% 0; width: min(62rem, 90vw); pointer-events: none;
+    background: radial-gradient(60% 55% at 30% 50%, rgba(2, 6, 12, .5), transparent 72%);
+  }
+  .chapter--right { justify-items: end; }
+  .chapter--right::before { left: auto; right: 0; background: radial-gradient(60% 55% at 70% 50%, rgba(2, 6, 12, .5), transparent 72%); }
+  .chapter--right .copy { text-align: right; }
+  .chapter--right .stats { justify-content: flex-end; }
+  .chapter { pointer-events: none; }
+  .copy { max-width: 34rem; pointer-events: auto; }
+
+  /* heights place each chapter's centre on its camera station (see scene.ts STATION_KEYS) */
+  .hero { min-height: 230vh; align-content: start; padding-top: 24vh; }
+  #gate { min-height: 122vh; }
+  #pavilion { min-height: 96vh; }
+  #corridor { min-height: 96vh; }
+  .chapter--hub { min-height: 156vh; align-content: start; padding-top: 14vh; justify-items: center; text-align: center; }
+  .chapter--hub::before { display: none; }
+  .about { min-height: 100vh; align-content: end; padding-bottom: 14vh; }
+  .about::before { inset: auto auto 0 0; height: 70%; background: radial-gradient(60% 60% at 25% 70%, rgba(2, 6, 12, .66), transparent 75%); }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: .9rem; margin: 0 0 1.4rem;
+    color: var(--pearl-silver); font: 500 .7rem/1 var(--font-ui); letter-spacing: .32em; opacity: .82;
+    text-shadow: 0 1px 16px rgba(2, 6, 10, .9);
+  }
+  .eyebrow-index { color: var(--lantern-amber); font-family: var(--font-reading); letter-spacing: 0; font-size: .9rem; }
+  .eyebrow-index::after { content: ''; display: inline-block; width: 2.2rem; height: 1px; margin-left: .9rem; vertical-align: middle; background: rgba(220, 233, 243, .4); }
+  .chapter--right .eyebrow { flex-direction: row; }
+
+  .wordmark {
+    margin: 0; font-family: var(--font-display); font-weight: 300; font-size: clamp(3.4rem, 10.5vw, 9.6rem); white-space: nowrap;
+    line-height: .9; letter-spacing: -.035em; color: var(--ink);
+    text-shadow: 0 4px 60px rgba(2, 6, 12, .75);
+  }
+  .lede { max-width: 27rem; margin: 2rem 0 0; color: var(--ink-muted); font-size: clamp(1rem, 1.6vw, 1.18rem); line-height: 2; text-shadow: 0 1px 20px rgba(2, 6, 10, .95); }
+  .display {
+    margin: 0; font-weight: 400; font-size: clamp(2.1rem, 4.4vw, 4rem); line-height: 1.28; letter-spacing: .02em;
+    text-shadow: 0 2px 40px rgba(2, 6, 12, .8);
+  }
+  .body { max-width: 28rem; margin: 1.6rem 0 0; color: #a9bccb; font-size: clamp(.95rem, 1.1vw, 1.05rem); line-height: 2.05; text-shadow: 0 1px 18px rgba(2, 6, 10, .95); }
+  .chapter--right .body { margin-left: auto; }
+  .chapter--hub .body { margin-inline: auto; }
+
+  .stats { display: flex; gap: 3rem; margin: 2.4rem 0 0; }
+  .stats div { padding-top: .9rem; border-top: 1px solid rgba(220, 233, 243, .18); min-width: 6rem; }
+  .stats dt { color: var(--ink-muted); font: 500 .66rem/1 var(--font-ui); letter-spacing: .28em; }
+  .stats dd { margin: .7rem 0 0; font: 300 2.2rem/1 var(--font-display); font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+
+  .scroll-cue {
+    position: absolute; left: clamp(1.5rem, 8vw, 8.5rem); top: calc(100vh - 5.5rem); margin: 0;
+    display: flex; align-items: center; gap: 1rem; color: var(--ink-muted); font: 500 .66rem/1 var(--font-ui); letter-spacing: .3em;
+  }
+  .scroll-cue span { position: relative; width: 1px; height: 2.6rem; overflow: hidden; background: rgba(220, 233, 243, .18); }
+  .scroll-cue span::after { content: ''; position: absolute; inset: 0; background: var(--pearl-silver); animation: cue 2.4s cubic-bezier(.65, 0, .35, 1) infinite; }
+  @keyframes cue { 0% { transform: translateY(-100%); } 60%, 100% { transform: translateY(100%); } }
+
+  @media (max-width: 720px) {
+    .chapter, .chapter--right { justify-items: start; }
+    .chapter--right .copy { text-align: left; }
+    .chapter--right .stats { justify-content: flex-start; }
+    .chapter--right .body { margin-left: 0; }
+    .chapter--hub { justify-items: center; }
+    .display { font-size: clamp(1.9rem, 8.4vw, 2.6rem); }
+  }
+  @media (prefers-reduced-motion: reduce) { .scroll-cue span::after { animation: none; } }
 </style>

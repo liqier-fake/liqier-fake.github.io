@@ -39,6 +39,17 @@ import { sitePath } from '../../lib/sitePath';
   .entrance--corridor { right: 6vw; bottom: 21%; }
   .entrance--tree { left: 13vw; bottom: 17%; }
   .entrance--platform { left: 50%; top: 57%; translate: -50% -50%; }
+  /* pinned to its object in the world: the label floats above a thin stem that touches the object */
+  .entrance[data-anchored] { right: auto; bottom: auto; translate: -50% calc(-100% - 26px); }
+  .entrance[data-anchored]::after {
+    content: ''; position: absolute; left: 50%; top: 100%; width: 1px; height: 22px;
+    background: linear-gradient(rgba(220, 233, 243, .7), rgba(220, 233, 243, 0));
+  }
+  .entrance[data-anchored]::before {
+    content: ''; position: absolute; left: 50%; top: calc(100% + 22px); width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px;
+    border-radius: 50%; background: var(--pearl-silver); box-shadow: 0 0 12px 2px rgba(241, 166, 90, .8);
+  }
+  .entrance[data-anchored][data-entrance-state="focused"]::before { background: var(--lantern-amber); }
   @media (max-width: 600px) {
     .entrance { min-width: 5.5rem; padding-inline: .5rem; }
     .entrance span { display: none; }

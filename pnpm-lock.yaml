@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@fontsource/cormorant-garamond':
+        specifier: 5.2.8
+        version: 5.2.8
       astro:
         specifier: 7.4.4
         version: 7.4.4(@types/node@24.10.0)(yaml@2.9.1)
@@ -276,6 +279,9 @@ packages:
 
   '@emnapi/wasi-threads@1.2.3':
     resolution: {integrity: sha512-ELEBe8PsLvvJ6QMr0zLt8ffvOHW/dc1m3CEzNMg7aJUv3bMaoDtw2TXyDAwkYBuroxxuHEwhRTLJSe5sya547g==}
+
+  '@fontsource/cormorant-garamond@5.2.8':
+    resolution: {integrity: sha512-ylx8F6QQ0cyhS/fyeAqv3SlZNr+y3Cvt/AOd1e2hVA62Eg86vPqjugN7l5rsh6pnjbwHRaPNZWh98hyT7sasAQ==}
 
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
@@ -2046,6 +2052,8 @@ snapshots:
   '@emnapi/wasi-threads@1.2.3':
     dependencies:
       tslib: 2.8.1
+
+  '@fontsource/cormorant-garamond@5.2.8': {}
 
   '@img/colour@1.1.0':
     optional: true

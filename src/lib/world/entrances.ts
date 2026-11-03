@@ -135,6 +135,35 @@ export function mountEntranceLayer(root: HTMLElement): () => void {
     render();
   };
 
+  // Pin each label to its object in the world once the renderer reports where it is on screen.
+  const onAnchors = (event: Event): void => {
+    const anchors = (event as CustomEvent<Record<string, { x: number; y: number; visible: boolean }>>).detail;
+    const pad = 56;
+    nodes.forEach((node) => {
+      const anchor = anchors[node.dataset.entranceId ?? ''];
+      if (!anchor?.visible) {
+        delete node.dataset.anchored;
+        node.style.removeProperty('left');
+        node.style.removeProperty('top');
+        delete node.dataset.ax;
+        delete node.dataset.ay;
+        return;
+      }
+      node.dataset.anchored = '';
+      const x = Math.round(Math.min(innerWidth - pad, Math.max(pad, anchor.x)));
+      const y = Math.round(Math.min(innerHeight - pad, Math.max(pad + 24, anchor.y)));
+      // deadband: ignore sub-3px breathing so labels stay put (and stay easy to click)
+      const lastX = Number(node.dataset.ax ?? NaN);
+      const lastY = Number(node.dataset.ay ?? NaN);
+      if (Math.abs(x - lastX) < 3 && Math.abs(y - lastY) < 3) return;
+      node.dataset.ax = String(x);
+      node.dataset.ay = String(y);
+      node.style.left = `${x}px`;
+      node.style.top = `${y}px`;
+    });
+  };
+  window.addEventListener('world:anchors', onAnchors);
+
   nodes.forEach((node) => {
     node.addEventListener('click', onClick);
     node.addEventListener('keydown', onKeyDown);
@@ -150,5 +179,6 @@ export function mountEntranceLayer(root: HTMLElement): () => void {
     });
     window.removeEventListener('scroll', sync);
     window.removeEventListener('keydown', onEscape);
+    window.removeEventListener('world:anchors', onAnchors);
   };
 }

@@ -2,185 +2,194 @@ import * as THREE from 'three';
 import type { QualityProfile } from './quality';
 import type { WorldFrame } from './timeline';
 import { DragonController } from './dragon';
+import { Kit, PALETTE } from './parts/kit';
+import { MOON_DIR, createCity, createRidges, createSky } from './parts/sky';
+import { createWater } from './parts/water';
+import { createArchitecture } from './parts/architecture';
+import { createFlora } from './parts/flora';
+import { createGlows, type GlowSpec } from './parts/glow';
 
 export interface WorldScene {
   scene: THREE.Scene;
   camera: THREE.PerspectiveCamera;
+  /** World-space anchors for each content entrance, projected onto the DOM layer. */
+  anchors: ReadonlyMap<string, THREE.Vector3>;
+  resize(width: number, height: number): void;
+  setPointer(x: number, y: number): void;
   update(frame: WorldFrame, elapsed: number, delta: number): void;
   dispose(): void;
 }
 
-const disposableMaterials: THREE.Material[] = [];
-const disposableGeometries: THREE.BufferGeometry[] = [];
+interface Waypoint { p: [number, number, number]; t: [number, number, number]; fov: number; }
 
-function material<T extends THREE.Material>(value: T): T {
-  disposableMaterials.push(value);
-  return value;
-}
+/** Authored camera stations, one per chapter of the page. */
+const WAYPOINTS: Waypoint[] = [
+  { p: [0, 1.55, 19], t: [0, 5.4, -60], fov: 40 }, // arrival: low over the sea, gate and moon ahead
+  { p: [-5.6, 3.0, 6], t: [0.8, 5.4, -16], fov: 46 }, // beside the lantern rows, looking up at the gate
+  { p: [1.5, 2.7, -20], t: [11, 3, -33], fov: 48 }, // just through the gate, the lit pavilion ahead
+  { p: [-2.5, 3.2, -24], t: [-10, 3.6, -36], fov: 50 }, // turning to the glass corridor and the moon tree
+  { p: [0, 9.2, -4.5], t: [0, 0.6, -36], fov: 54 }, // the overlook where every entrance is visible
+];
 
-function geometry<T extends THREE.BufferGeometry>(value: T): T {
-  disposableGeometries.push(value);
-  return value;
-}
+/** cameraT → waypoint index; lets each chapter rest on its station instead of drifting past it. */
+const STATION_KEYS: Array<[number, number]> = [[0, 0], [0.28, 1], [0.5, 2], [0.69, 3], [0.93, 4], [1, 4]];
 
-function addGate(scene: THREE.Scene): void {
-  const gate = new THREE.Group();
-  const vermilion = material(new THREE.MeshStandardMaterial({ color: 0xc9493a, roughness: 0.54, metalness: 0.08 }));
-  const darkRoof = material(new THREE.MeshStandardMaterial({ color: 0x170f15, roughness: 0.8 }));
-  const post = geometry(new THREE.CylinderGeometry(0.34, 0.42, 8.2, 16));
-  const beam = geometry(new THREE.BoxGeometry(10.8, 0.55, 0.7));
-  for (const x of [-3.4, 3.4]) {
-    const mesh = new THREE.Mesh(post, vermilion);
-    mesh.position.set(x, 4.1, -16);
-    mesh.castShadow = true;
-    gate.add(mesh);
+export const ENTRANCE_ANCHORS: Record<string, [number, number, number]> = {
+  'paper-slip:first-light': [3.8, 1.6, -26],
+  'essay-pavilion:after-the-long-night': [10.5, 4.6, -32],
+  'image-corridor:moonlit-water': [-10, 4.7, -30],
+  'moon-tree:borrowed-light': [-5.5, 7.4, -48],
+  'central-platform:about': [0, 1.1, -13.5],
+};
+
+function stationAt(cameraT: number): number {
+  for (let i = 1; i < STATION_KEYS.length; i += 1) {
+    const [t1, s1] = STATION_KEYS[i];
+    const [t0, s0] = STATION_KEYS[i - 1];
+    if (cameraT <= t1) return s0 + ((cameraT - t0) / Math.max(t1 - t0, 1e-6)) * (s1 - s0);
   }
-  const upper = new THREE.Mesh(beam, vermilion);
-  upper.position.set(0, 7.7, -16);
-  gate.add(upper);
-  const roof = new THREE.Mesh(geometry(new THREE.BoxGeometry(12.4, 0.28, 1.2)), darkRoof);
-  roof.position.set(0, 8.25, -16);
-  roof.rotation.z = -0.018;
-  gate.add(roof);
-  scene.add(gate);
+  return WAYPOINTS.length - 1;
 }
 
-function addLanternPath(scene: THREE.Scene): void {
-  const wood = material(new THREE.MeshStandardMaterial({ color: 0x301e1a, roughness: 0.72 }));
-  const glow = material(new THREE.MeshStandardMaterial({ color: 0xffc176, emissive: 0xf1a65a, emissiveIntensity: 2.4 }));
-  const postGeo = geometry(new THREE.BoxGeometry(0.12, 1.15, 0.12));
-  const lampGeo = geometry(new THREE.BoxGeometry(0.42, 0.62, 0.42));
-  for (let i = 0; i < 24; i += 1) {
-    const z = 8 - i * 2.25;
-    for (const x of [-5.2, 5.2]) {
-      const post = new THREE.Mesh(postGeo, wood);
-      post.position.set(x, 0.52, z);
-      const lamp = new THREE.Mesh(lampGeo, glow);
-      lamp.position.set(x, 1.25, z);
-      scene.add(post, lamp);
-    }
-  }
-}
+const damp = (current: number, target: number, rate: number, dt: number) =>
+  current + (target - current) * (1 - Math.exp(-rate * dt));
 
-function addCity(scene: THREE.Scene): void {
-  const city = new THREE.Group();
-  const colors = [0x112b46, 0x18385a, 0x251f52, 0x0f2940];
-  for (let i = 0; i < 54; i += 1) {
-    const height = 2.5 + ((i * 17) % 9);
-    const tower = new THREE.Mesh(
-      geometry(new THREE.BoxGeometry(0.8 + (i % 3) * 0.35, height, 0.9)),
-      material(new THREE.MeshStandardMaterial({
-        color: colors[i % colors.length],
-        emissive: i % 5 === 0 ? 0x293a88 : 0x071425,
-        emissiveIntensity: 0.55,
-        roughness: 0.82,
-      })),
-    );
-    const side = i % 2 === 0 ? -1 : 1;
-    tower.position.set(side * (12 + (i % 11) * 1.8), height / 2 - 0.4, -26 - Math.floor(i / 11) * 6);
-    city.add(tower);
-  }
-  scene.add(city);
-}
-
-function addParticles(scene: THREE.Scene, count: number): THREE.Points {
-  const positions = new Float32Array(count * 3);
-  for (let i = 0; i < count; i += 1) {
-    positions[i * 3] = (Math.random() - 0.5) * 62;
-    positions[i * 3 + 1] = Math.random() * 18;
-    positions[i * 3 + 2] = 10 - Math.random() * 70;
-  }
-  const pointsGeometry = geometry(new THREE.BufferGeometry());
-  pointsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  const points = new THREE.Points(
-    pointsGeometry,
-    material(new THREE.PointsMaterial({ color: 0xdce9f3, size: 0.055, transparent: true, opacity: 0.68, depthWrite: false })),
-  );
-  scene.add(points);
-  return points;
-}
-
-export function createWorldScene(profile: QualityProfile): WorldScene {
+export function createWorldScene(profile: QualityProfile, reducedMotion = false): WorldScene {
+  const kit = new Kit();
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x071425);
-  scene.fog = new THREE.FogExp2(0x071425, 0.045);
+  scene.background = PALETTE.sky.clone();
+  scene.fog = new THREE.FogExp2(PALETTE.fog, 0.03);
 
-  const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 180);
-  const path = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(0, 1.35, 15),
-    new THREE.Vector3(-1.4, 1.5, 3),
-    new THREE.Vector3(1.2, 2.05, -9),
-    new THREE.Vector3(0, 2.5, -18),
-    new THREE.Vector3(6.4, 3.2, -28),
-  ], false, 'catmullrom', 0.3);
+  const camera = new THREE.PerspectiveCamera(WAYPOINTS[0].fov, 1, 0.1, 520);
+  const pxScale = { value: 400 };
 
-  const hemi = new THREE.HemisphereLight(0x7eabdb, 0x071018, 1.15);
+  const sky = createSky(kit, scene, profile.tier === 'low' ? 500 : 1400);
+  createRidges(kit, scene);
+  const beacons = createCity(kit, scene);
+  const architecture = createArchitecture(kit, scene);
+  const water = createWater(kit, scene, architecture.lanternLights, profile.reflections);
+  const flora = createFlora(kit, scene, profile.particleCount, pxScale);
+
+  const glowSpecs: GlowSpec[] = [
+    ...architecture.glows,
+    ...flora.glows,
+    ...beacons.map((p, i) => ({ position: p, color: i % 3 === 0 ? PALETTE.amber.clone() : PALETTE.violet.clone(), size: 4, flicker: i * 0.9 })),
+  ];
+  const glows = createGlows(kit, scene, glowSpecs, 'world-glows');
+
+  const hemi = new THREE.HemisphereLight(0x6f93c4, 0x05080d, 0.9);
   scene.add(hemi);
-  const moonLight = new THREE.DirectionalLight(0xdce9f3, 2.2);
-  moonLight.position.set(16, 28, 8);
+  const moonLight = new THREE.DirectionalLight(0xc9dcf2, 1.7);
+  moonLight.position.copy(MOON_DIR).multiplyScalar(60).add(new THREE.Vector3(0, 0, -20));
+  moonLight.target.position.set(0, 0, -20);
   moonLight.castShadow = profile.shadows;
-  scene.add(moonLight);
+  if (profile.shadows) {
+    moonLight.shadow.mapSize.set(2048, 2048);
+    Object.assign(moonLight.shadow.camera, { left: -30, right: 30, top: 30, bottom: -30, near: 1, far: 140 });
+    moonLight.shadow.bias = -0.0006;
+  }
+  scene.add(moonLight, moonLight.target);
+  // A cool rim from behind so silhouettes separate from the sky.
+  const rim = new THREE.DirectionalLight(0x7d8fe0, 0.6);
+  rim.position.set(-20, 12, -60);
+  scene.add(rim);
+  const warmLights = [
+    new THREE.PointLight(0xffa860, 3, 14, 2),
+    new THREE.PointLight(0xffa860, 5, 16, 2),
+    new THREE.PointLight(0xffb070, 2, 12, 2),
+  ];
+  warmLights[0].position.set(0, 2.2, -11);
+  warmLights[1].position.set(10.5, 2.6, -32);
+  warmLights[2].position.set(0, 2.4, 2);
+  warmLights.forEach((light) => scene.add(light));
 
-  const sea = new THREE.Mesh(
-    geometry(new THREE.PlaneGeometry(140, 140, 1, 1)),
-    material(new THREE.MeshPhysicalMaterial({
-      color: 0x09233b,
-      roughness: profile.reflections ? 0.18 : 0.48,
-      metalness: 0.25,
-      transmission: 0.08,
-      transparent: true,
-      opacity: 0.96,
-    })),
-  );
-  sea.rotation.x = -Math.PI / 2;
-  sea.position.y = -0.08;
-  scene.add(sea);
-
-  const platform = new THREE.Mesh(
-    geometry(new THREE.CylinderGeometry(7.4, 8, 0.7, 64)),
-    material(new THREE.MeshStandardMaterial({ color: 0x2d1b1a, roughness: 0.66, metalness: 0.08 })),
-  );
-  platform.position.set(0, 0.25, -16);
-  platform.receiveShadow = true;
-  scene.add(platform);
-
-  const moon = new THREE.Mesh(
-    geometry(new THREE.SphereGeometry(8, 32, 24)),
-    material(new THREE.MeshBasicMaterial({ color: 0xdce9f3, fog: false })),
-  );
-  moon.position.set(18, 24, -55);
-  scene.add(moon);
-
-  addGate(scene);
-  addLanternPath(scene);
-  addCity(scene);
-  const particles = addParticles(scene, profile.particleCount);
   const dragon = new DragonController(scene, profile);
+
+  const posCurve = new THREE.CatmullRomCurve3(WAYPOINTS.map((w) => new THREE.Vector3(...w.p)), false, 'catmullrom', 0.4);
+  const tgtCurve = new THREE.CatmullRomCurve3(WAYPOINTS.map((w) => new THREE.Vector3(...w.t)), false, 'catmullrom', 0.4);
+  const anchors = new Map(Object.entries(ENTRANCE_ANCHORS).map(([id, p]) => [id, new THREE.Vector3(...p)]));
+
+  const rig = { station: 0, mx: 0, my: 0, tmx: 0, tmy: 0, intro: 0, aspect: 1, height: 800, first: true };
+  const p = new THREE.Vector3();
+  const t = new THREE.Vector3();
+  const dir = new THREE.Vector3();
 
   return {
     scene,
     camera,
-    update(frame, elapsed, delta) {
-      const position = path.getPointAt(frame.cameraT);
-      camera.position.copy(position);
-      const targetT = Math.min(1, frame.cameraT + 0.035);
-      const target = path.getPointAt(targetT);
-      target.y += frame.phase === 'approach' ? 1.4 : 0.45;
-      camera.lookAt(target);
-      camera.fov = frame.phase === 'gate' ? 44 : 48;
+    anchors,
+    resize(width, height) {
+      rig.aspect = width / Math.max(1, height);
+      rig.height = height;
+      camera.aspect = rig.aspect;
       camera.updateProjectionMatrix();
-      if (scene.fog instanceof THREE.FogExp2) scene.fog.density = frame.fogDensity;
-      hemi.intensity = frame.worldLight * 1.25;
-      moonLight.intensity = frame.worldLight * 2.3;
-      particles.rotation.y = elapsed * 0.008;
-      particles.position.y = Math.sin(elapsed * 0.18) * 0.16;
-      sea.position.y = -0.08 + Math.sin(elapsed * 0.42) * 0.012;
+    },
+    setPointer(x, y) {
+      rig.tmx = x;
+      rig.tmy = y;
+    },
+    update(frame, elapsed, delta) {
+      const dt = Math.min(0.1, Math.max(0, delta));
+      const targetStation = stationAt(frame.cameraT);
+      if (rig.first || reducedMotion) {
+        rig.station = targetStation;
+        rig.first = false;
+      } else {
+        rig.station = damp(rig.station, targetStation, 3.4, dt);
+      }
+      rig.intro = reducedMotion ? 1 : Math.min(1, rig.intro + dt / 3.2);
+      const sway = reducedMotion ? 0 : 1;
+      rig.mx = damp(rig.mx, rig.tmx * sway, 2.2, dt);
+      rig.my = damp(rig.my, rig.tmy * sway, 2.2, dt);
+
+      const u = THREE.MathUtils.clamp(rig.station / (WAYPOINTS.length - 1), 0, 1);
+      posCurve.getPoint(u, p);
+      tgtCurve.getPoint(u, t);
+      const i = Math.min(WAYPOINTS.length - 2, Math.floor(rig.station));
+      const f = THREE.MathUtils.clamp(rig.station - i, 0, 1);
+      let fov = THREE.MathUtils.lerp(WAYPOINTS[i].fov, WAYPOINTS[i + 1].fov, f);
+
+      // Tall screens: step back along the view axis instead of cropping the gate in half.
+      const narrow = THREE.MathUtils.clamp((1.55 - rig.aspect) / 1.0, 0, 1);
+      if (narrow > 0) {
+        dir.subVectors(p, t).normalize();
+        p.addScaledVector(dir, narrow * 6);
+        p.y += narrow * 0.8;
+        fov *= 1 + narrow * 0.38;
+      }
+      // Opening dolly: a long lens easing in from further back.
+      const ease = 1 - Math.pow(1 - rig.intro, 3);
+      p.z += (1 - ease) * 7;
+      p.y += (1 - ease) * 0.6;
+      fov += (1 - ease) * 6;
+      // Breathing and pointer parallax.
+      p.x += rig.mx * 0.7 + Math.sin(elapsed * 0.21) * 0.08 * sway;
+      p.y += -rig.my * 0.35 + Math.sin(elapsed * 0.33) * 0.05 * sway;
+      t.x += rig.mx * 0.25;
+
+      camera.position.copy(p);
+      camera.lookAt(t);
+      camera.fov = fov;
+      camera.updateProjectionMatrix();
+
+      pxScale.value = rig.height / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2));
+      glows.material.uniforms.uScale.value = pxScale.value;
+      glows.material.uniforms.uTime.value = elapsed;
+
+      if (scene.fog instanceof THREE.FogExp2) scene.fog.density = frame.fogDensity * 0.62;
+      hemi.intensity = 0.55 + frame.worldLight * 0.5;
+      moonLight.intensity = 1.1 + frame.worldLight * 0.9;
+      warmLights.forEach((light, index) => { light.intensity = [3, 5, 2][index] * (0.92 + Math.sin(elapsed * 6 + index) * 0.05); });
+
+      sky.update(camera, elapsed);
+      water.update(elapsed);
+      architecture.update(elapsed);
+      flora.update(elapsed, camera);
       dragon.update(delta, frame);
     },
     dispose() {
       dragon.dispose();
-      disposableGeometries.splice(0).forEach((item) => item.dispose());
-      disposableMaterials.splice(0).forEach((item) => item.dispose());
+      kit.dispose();
     },
   };
 }

@@ -1,0 +1,59 @@
+<div class="pre" data-preloader aria-hidden="true">
+  <div class="pre-in">
+    <svg class="pre-mark" viewBox="0 0 48 48" fill="none">
+      <circle cx="24" cy="25" r="11" fill="#dce9f3" opacity=".92" />
+      <path d="M6 13.5c6 1.4 30 1.4 36 0" stroke="#c9493a" stroke-width="2.6" stroke-linecap="round" />
+      <path d="M10 19h28M15 14.5V42M33 14.5V42" stroke="#c9493a" stroke-width="2.2" stroke-linecap="round" />
+    </svg>
+    <p class="pre-line">月 见 · 入 夜</p>
+    <div class="pre-bar"><i data-preloader-bar></i></div>
+    <div class="pre-meta"><span>点亮灯径</span><b data-preloader-count>00</b></div>
+  </div>
+</div>
+
+<script>
+  const pre = document.querySelector<HTMLElement>('[data-preloader]');
+  const bar = pre?.querySelector<HTMLElement>('[data-preloader-bar]');
+  const count = pre?.querySelector<HTMLElement>('[data-preloader-count]');
+  if (pre && bar && count) {
+    let shown = 0;
+    let target = 18;
+    let finished = false;
+    const finish = (): void => {
+      if (finished) return;
+      finished = true;
+      target = 100;
+    };
+    const tick = (): void => {
+      shown += (target - shown) * (finished ? 0.2 : 0.05);
+      if (!finished) target = Math.min(88, target + 0.35);
+      bar.style.right = `${100 - shown}%`;
+      count.textContent = String(Math.round(shown)).padStart(2, '0');
+      if (finished && shown > 99.4) {
+        pre.classList.add('is-done');
+        document.documentElement.dataset.entered = '';
+        return;
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+    const check = (): void => { if (document.documentElement.dataset.world) finish(); };
+    new MutationObserver(check).observe(document.documentElement, { attributes: true, attributeFilter: ['data-world'] });
+    check();
+    // Never hold the visitor back: the page is usable as soon as it is painted.
+    setTimeout(finish, 4500);
+  }
+</script>
+
+<style>
+  .pre { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; background: #040a13; pointer-events: none; transition: opacity 1s cubic-bezier(.22, .61, .36, 1), visibility 1s; }
+  .pre.is-done { opacity: 0; visibility: hidden; }
+  .pre-in { width: min(380px, 72vw); text-align: center; }
+  .pre-mark { width: 44px; height: 44px; margin: 0 auto 1.6rem; display: block; }
+  .pre-line { margin: 0 0 1.4rem; color: rgba(220, 233, 243, .72); font: 400 .8rem/1 var(--font-reading); letter-spacing: .5em; }
+  .pre-bar { position: relative; height: 1px; overflow: hidden; background: rgba(220, 233, 243, .14); }
+  .pre-bar i { position: absolute; inset: 0 100% 0 0; background: var(--pearl-silver); }
+  .pre-meta { display: flex; justify-content: space-between; margin-top: .8rem; color: rgba(220, 233, 243, .5); font: 500 .6rem/1 var(--font-ui); letter-spacing: .26em; }
+  .pre-meta b { font-weight: 500; color: rgba(220, 233, 243, .8); font-variant-numeric: tabular-nums; }
+  @media (prefers-reduced-motion: reduce) { .pre { transition: opacity .2s; } }
+</style>

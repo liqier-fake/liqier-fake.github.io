@@ -10,6 +10,7 @@ export function mountWorld(root: HTMLElement): () => void {
 
   const showFallback = (state: 'fallback' | 'lost'): void => {
     root.dataset.worldState = state;
+    document.documentElement.dataset.world = state;
     poster.hidden = false;
     fallback.hidden = false;
     canvas.hidden = true;
@@ -35,8 +36,10 @@ export function mountWorld(root: HTMLElement): () => void {
       runtime = WorldRuntime.mount(canvas, {
         reducedMotion,
         onContextLost: () => showFallback('lost'),
+        onAnchors: (anchors) => window.dispatchEvent(new CustomEvent('world:anchors', { detail: anchors })),
       });
       root.dataset.worldState = 'ready';
+      document.documentElement.dataset.world = 'ready';
       poster.hidden = true;
       canvas.hidden = false;
       if (root.dataset.worldView === 'reading') runtime.enterDestination('reading-pavilion');
