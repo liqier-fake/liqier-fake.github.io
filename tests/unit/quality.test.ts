@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { selectQualityProfile } from '../../src/lib/world/quality';
+import { isSoftwareRenderer, selectQualityProfile } from '../../src/lib/world/quality';
 
 describe('selectQualityProfile', () => {
+  it('drops to the light profile when WebGL is emulated on the CPU', () => {
+    expect(selectQualityProfile({ width: 1440, devicePixelRatio: 2, hardwareConcurrency: 12, dataSaver: false, softwareRenderer: true }).tier).toBe('low');
+    expect(isSoftwareRenderer('ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero)), SwiftShader driver)')).toBe(true);
+    expect(isSoftwareRenderer('llvmpipe (LLVM 15.0.7, 256 bits)')).toBe(true);
+    expect(isSoftwareRenderer('ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Direct3D11 vs_5_0 ps_5_0, D3D11)')).toBe(false);
+  });
+
   it('uses the full profile on capable desktop displays', () => {
     expect(selectQualityProfile({ width: 1440, devicePixelRatio: 2.5, hardwareConcurrency: 12, dataSaver: false })).toEqual({
       tier: 'high',

@@ -3,7 +3,20 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-import { selectQualityProfile, type QualityProfile } from './quality';
+import { isSoftwareRenderer, selectQualityProfile, type QualityProfile } from './quality';
+
+function probeRendererName(): string {
+  try {
+    const gl = document.createElement('canvas').getContext('webgl');
+    if (!gl) return '';
+    const info = gl.getExtension('WEBGL_debug_renderer_info');
+    const name = String(gl.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : gl.RENDERER) ?? '');
+    gl.getExtension('WEBGL_lose_context')?.loseContext();
+    return name;
+  } catch {
+    return '';
+  }
+}
 import { createWorldScene, type WorldScene } from './scene';
 import { sampleWorldFrame } from './timeline';
 
@@ -60,6 +73,7 @@ export class WorldRuntime {
       devicePixelRatio: window.devicePixelRatio || 1,
       hardwareConcurrency: navigator.hardwareConcurrency || 4,
       dataSaver: connection?.saveData === true,
+      softwareRenderer: isSoftwareRenderer(probeRendererName()),
     });
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: this.profile.tier === 'high', alpha: false, powerPreference: 'high-performance' });
     this.renderer.setPixelRatio(this.profile.pixelRatio);

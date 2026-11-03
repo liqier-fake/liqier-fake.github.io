@@ -1,10 +1,10 @@
 import { expect, test } from '@playwright/test';
 
-test('the silver dragon remains a named companion through the journey', async ({ page }) => {
+test('the moon whale remains a named companion through the journey', async ({ page }) => {
   await page.goto('/');
   const companion = page.locator('[data-dragon-companion]');
   await expect(companion).toHaveCount(1);
-  await expect(companion).toContainText('银龙');
+  await expect(companion).toContainText('月鲸');
   await expect(companion).toHaveAttribute('data-dragon-mode', 'lead');
 
   await page.evaluate(() => {
@@ -23,5 +23,5 @@ test('the companion remains described when WebGL is unavailable', async ({ page 
   });
   await page.goto('/');
   await expect(page.locator('[data-dragon-companion]')).toBeVisible();
-  await expect(page.locator('[data-dragon-companion]')).toContainText('银龙');
+  await expect(page.locator('[data-dragon-companion]')).toContainText('月鲸');
 });

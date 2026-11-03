@@ -3,10 +3,11 @@ test.setTimeout(60_000);
 
 test('travels from arrival through reading, images, attribution, and the map', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('[data-dragon-companion]')).toContainText('银龙');
+  await expect(page.locator('[data-dragon-companion]')).toContainText('月鲸');
   await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
 
   const essay = page.locator('[data-entrance-id="essay-pavilion:after-the-long-night"]');
+  await expect(essay).toHaveAttribute('data-entrance-state', 'near'); // smooth scroll has arrived
   await essay.click();
   await essay.press('Enter');
   await expect(page.locator('.reading-body')).toContainText('夜晚最深的时候');

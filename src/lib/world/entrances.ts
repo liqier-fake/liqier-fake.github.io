@@ -150,6 +150,8 @@ export function mountEntranceLayer(root: HTMLElement): () => void {
         return;
       }
       node.dataset.anchored = '';
+      // hold still under the pointer so a drifting camera never pulls the target away mid-click
+      if (node.dataset.hold !== undefined) return;
       const x = Math.round(Math.min(innerWidth - pad, Math.max(pad, anchor.x)));
       const y = Math.round(Math.min(innerHeight - pad, Math.max(pad + 24, anchor.y)));
       // deadband: ignore sub-3px breathing so labels stay put (and stay easy to click)
@@ -164,9 +166,13 @@ export function mountEntranceLayer(root: HTMLElement): () => void {
   };
   window.addEventListener('world:anchors', onAnchors);
 
+  const hold = (event: Event): void => { (event.currentTarget as HTMLElement).dataset.hold = ''; };
+  const release = (event: Event): void => { delete (event.currentTarget as HTMLElement).dataset.hold; };
   nodes.forEach((node) => {
     node.addEventListener('click', onClick);
     node.addEventListener('keydown', onKeyDown);
+    node.addEventListener('pointerenter', hold);
+    node.addEventListener('pointerleave', release);
   });
   window.addEventListener('scroll', sync, { passive: true });
   window.addEventListener('keydown', onEscape);
@@ -176,6 +182,8 @@ export function mountEntranceLayer(root: HTMLElement): () => void {
     nodes.forEach((node) => {
       node.removeEventListener('click', onClick);
       node.removeEventListener('keydown', onKeyDown);
+      node.removeEventListener('pointerenter', hold);
+      node.removeEventListener('pointerleave', release);
     });
     window.removeEventListener('scroll', sync);
     window.removeEventListener('keydown', onEscape);

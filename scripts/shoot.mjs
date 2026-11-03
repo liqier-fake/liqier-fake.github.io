@@ -11,7 +11,7 @@ await page.goto(url, { waitUntil: 'networkidle' });
 await page.waitForTimeout(5000);
 for (const f of fractions.split(',')) {
   await page.evaluate((v) => window.scrollTo({ top: (document.documentElement.scrollHeight - innerHeight) * v, behavior: 'instant' }), +f);
-  await page.waitForTimeout(3200);
+  await page.waitForTimeout(Number(process.env.SHOOT_WAIT ?? 3200));
   await page.screenshot({ path: `${prefix}-${f}.png` });
 }
 console.log(JSON.stringify({ errors: errors.slice(0, 8), state: await page.evaluate(() => document.querySelector('#world-root')?.dataset.worldState) }));

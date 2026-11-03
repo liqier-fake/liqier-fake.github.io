@@ -4,6 +4,8 @@ export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
   workers: 2,
+  // the WebGL world renders on the CPU in headless runs, so page transitions need more headroom than the 5s default
+  expect: { timeout: 10_000 },
   reporter: 'line',
   use: {
     baseURL: 'http://127.0.0.1:4321',

@@ -29,6 +29,17 @@ export function mountWorld(root: HTMLElement): () => void {
     runtime?.setProgress(progress);
     companion.dataset.dragonMode = sampleWorldFrame(progress, false).dragonMode;
   };
+  // Return to the remembered hub position. Instant (the page uses smooth scrolling), and re-applied once the
+  // world is ready because WebGL start-up can swallow the first attempt — unless the visitor already scrolled.
+  const saved = root.dataset.worldView !== 'reading' ? Number(sessionStorage.getItem('liqier:hub-scroll')) : 0;
+  let userScrolled = false;
+  const markUser = (): void => { userScrolled = true; };
+  const restore = (): void => {
+    if (!Number.isFinite(saved) || saved <= 0 || userScrolled || Math.abs(window.scrollY - saved) < 2) return;
+    window.scrollTo({ top: saved, behavior: 'instant' });
+    syncProgress();
+  };
+  ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach((type) => window.addEventListener(type, markUser, { once: true, passive: true }));
   const start = async (): Promise<void> => {
     try {
       const { WorldRuntime } = await import('../../lib/world/WorldRuntime');
@@ -43,6 +54,7 @@ export function mountWorld(root: HTMLElement): () => void {
       poster.hidden = true;
       canvas.hidden = false;
       if (root.dataset.worldView === 'reading') runtime.enterDestination('reading-pavilion');
+      requestAnimationFrame(restore);
       syncProgress();
     } catch {
       if (!disposed) showFallback('fallback');
@@ -50,15 +62,13 @@ export function mountWorld(root: HTMLElement): () => void {
   };
   void start();
   syncProgress();
-  if (root.dataset.worldView !== 'reading') {
-    const saved = Number(sessionStorage.getItem('liqier:hub-scroll'));
-    if (Number.isFinite(saved) && saved > 0) requestAnimationFrame(() => window.scrollTo(0, saved));
-  }
+  requestAnimationFrame(restore);
   window.addEventListener('scroll', syncProgress, { passive: true });
 
   return () => {
     disposed = true;
     window.removeEventListener('scroll', syncProgress);
+    ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach((type) => window.removeEventListener(type, markUser));
     runtime?.dispose();
   };
 }

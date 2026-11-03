@@ -14,6 +14,7 @@ test('world-native entrances focus before confirmation', async ({ page }) => {
 
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
   const essay = page.locator('[data-entrance-id="essay-pavilion:after-the-long-night"]');
+  await expect(essay).toHaveAttribute('data-entrance-state', 'near'); // smooth scroll has arrived
   await essay.click();
   await expect(essay).toHaveAttribute('data-entrance-state', 'focused');
   await essay.press('Enter');
@@ -24,6 +25,7 @@ test('Escape cancels a focused entrance', async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
   const thought = page.locator('[data-entrance-id="paper-slip:first-light"]');
+  await expect(thought).toHaveAttribute('data-entrance-state', 'near'); // smooth scroll has arrived
   await thought.click();
   await expect(thought).toHaveAttribute('data-entrance-state', 'focused');
   await page.keyboard.press('Escape');

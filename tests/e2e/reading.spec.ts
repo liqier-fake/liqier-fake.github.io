@@ -22,6 +22,8 @@ test('returns to the remembered hub position', async ({ page }) => {
   await page.goto('/');
   const range = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
   await page.evaluate((value) => scrollTo(0, value * 0.84), range);
+  // the page scrolls smoothly; let it arrive before remembering the position
+  await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(range * 0.83);
   const essay = page.locator('[data-entrance-id="essay-pavilion:after-the-long-night"]');
   await essay.click();
   await essay.press('Enter');

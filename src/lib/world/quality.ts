@@ -3,6 +3,8 @@ export interface RenderCapabilities {
   devicePixelRatio: number;
   hardwareConcurrency: number;
   dataSaver: boolean;
+  /** CPU-emulated WebGL (SwiftShader, llvmpipe, Basic Render): no GPU acceleration. */
+  softwareRenderer?: boolean;
 }
 
 export interface QualityProfile {
@@ -14,8 +16,13 @@ export interface QualityProfile {
   postprocessing: boolean;
 }
 
+/** True when WebGL is being emulated on the CPU, where the full scene would crawl. */
+export function isSoftwareRenderer(name: string): boolean {
+  return /swiftshader|llvmpipe|softpipe|basic render|software/i.test(name);
+}
+
 export function selectQualityProfile(capabilities: RenderCapabilities): QualityProfile {
-  if (capabilities.dataSaver || capabilities.hardwareConcurrency <= 2) {
+  if (capabilities.dataSaver || capabilities.softwareRenderer || capabilities.hardwareConcurrency <= 2) {
     return {
       tier: 'low',
       pixelRatio: 1,
